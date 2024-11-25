@@ -78,6 +78,13 @@ class root_view:
     # def btn_file_operations_click(self):
     #     self.open_window(app_view)    
 
+    def update_tree_view(self, app_list):
+        self.tree_app.delete(*self.tree_app.get_children())  # Xóa dữ liệu cũ trong TreeView
+        if not app_list:  # Nếu danh sách ứng dụng rỗng
+            self.show_message("Thông báo", "Không có ứng dụng nào đang chạy.")
+            return
+        for pid, app_name in app_list:
+            self.tree_app.insert("", "end", text=pid, values=(app_name,))
 
         
         

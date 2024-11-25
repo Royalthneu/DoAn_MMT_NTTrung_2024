@@ -5,6 +5,7 @@ class SV_Controller:
     def __init__(self, model, view):
         self.model = model
         self.view = view
+        self.client_socket = None
         self.view.btn_open.config(command=self.start_server)
         self.view.btn_close.config(command=self.stop_server)
 
@@ -29,7 +30,7 @@ class SV_Controller:
                 if self.client_socket:
                     print(f"Client connected from {self.addr}")
                     client_thread = threading.Thread(
-                        target=self.handle_client, args=(self.client_socket, self.addr))
+                        target=self.handle_client, args=(self.client_socket, self.addr), daemon=True)
                     client_thread.start()
                 else:
                     break  # Nếu không có client kết nối, thoát khỏi vòng lặp
@@ -50,9 +51,9 @@ class SV_Controller:
 
                 #1. List app running
                 if command == "CM_LIST_APPS_RUNNING":
-                # Gọi phương thức model để lấy danh sách ứng dụng đang chạy
                     result = self.model.list_apps_running()  # Chuyển lệnh trả về từ model
-                    self.model.send_command(client_socket, result)  # Gửi kết quả lại cho client
+                    print(f"Server output: {result}")
+                    self.model.send_command_utf8(client_socket, result)  # Gửi kết quả lại cho client
                 
                 elif command.startswith("START_APP_BY_NAME"):
                     name = command.split(" ", 1)[1]

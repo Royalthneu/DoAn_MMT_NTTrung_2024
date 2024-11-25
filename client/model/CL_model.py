@@ -28,7 +28,12 @@ class cl_model:
         client_socket.sendall(command.encode())  # Mã hóa lệnh và gửi
 
     def receive_response(self, client_socket, buffer_size=65535):
-        response = client_socket.recv(buffer_size).decode()  # Nhận và giải mã phản hồi
+        response = client_socket.recv(buffer_size).decode() # Nhận và giải mã phản hồi
+        return response
+    
+    def receive_response_utf8(self, client_socket, buffer_size=65535):
+        response = client_socket.recv(buffer_size).decode("utf-8")  # Nhận và giải mã phản hồi
+        return response
     
     def show_message(self, message):
         messagebox.showinfo("Thông báo", message)
@@ -38,6 +43,27 @@ class cl_model:
 
     def set_port(self, port):
         self.server_port = port
+        
+    # Chuyển đổi output của lệnh 'tasklist' thành danh sách [(pid, app_name), ...].
+    def parse_app_list(self, response):
+        app_list = []
+        try:
+            # Tách phản hồi thành các dòng
+            lines = response.splitlines()
+            # Loại bỏ 3 dòng đầu tiên
+            lines = lines[3:]
+            
+            for line in lines:
+                parts = line.split()
+                if len(parts) >= 2:
+                    app_name = parts[0]
+                    pid = parts[1]
+                    app_list.append((pid, app_name))
+        except Exception as e:
+            raise ValueError(f"Lỗi khi phân tích danh sách ứng dụng: {e}")
+        
+        return app_list
+
         
 #Thiet ke giao dien
 class AutoScroll(object):

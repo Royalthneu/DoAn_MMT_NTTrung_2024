@@ -28,7 +28,7 @@ class app_view:
 
         # Button configuration
         self.btn_list_app = self.widget_factory.create_button("LIST APPS", 0.05, 0.043, 77, 36)
-        
+        self.btn_list_app.configure(command= self.btn_list_app_click)
         
         self.btn_start_app = self.widget_factory.create_button("START APP", 0.301, 0.043, 77, 36)
         self.btn_start_app.configure(command= self.btn_start_app_click)
@@ -37,6 +37,10 @@ class app_view:
         self.btn_stop_app.configure(command= self.btn_stop_app_click)
         
         self.btn_clear_list_app = self.widget_factory.create_button("CLEAR", 0.802, 0.043, 57, 36)
+        self.btn_clear_list_app.configure(command= self.btn_clear_list_app_click)
+        
+    def btn_list_app_click(self):
+        self.controller.list_apps(self.client_socket, self.update_tree_view)
     
     def btn_start_app_click(self):
         from view.CL_frm_nhap_Ten_view import frm_nhap_Ten_view
@@ -45,3 +49,13 @@ class app_view:
     def btn_stop_app_click(self):
         from view.CL_frm_nhap_PID_view import frm_nhap_PID_view
         open_wd_client_socket(self.top, self.client_socket, self.controller, frm_nhap_PID_view)  
+        
+    def btn_clear_list_app_click(self):   
+        for item in self.tree_app.get_children():
+            self.tree_app.delete(item)
+        
+    def update_tree_view(self, app_list):        
+        for item in self.tree_app.get_children():
+            self.tree_app.delete(item)
+        for pid, app_name in app_list:
+            self.tree_app.insert("", "end", text=pid, values=(app_name,))

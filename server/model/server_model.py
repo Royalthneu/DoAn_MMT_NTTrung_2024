@@ -56,8 +56,10 @@ class SV_Model:
             return False
         
     def send_command(self, socket, command):
-        """Gửi câu lệnh từ client/server đến server/client"""
         socket.sendall(command.encode())
+    
+    def send_command_utf8(self, socket, command):
+        socket.sendall(command.encode('utf-8'))
     
     def receive_response(self, socket, buffer_size=65535):
         """Nhận phản hồi từ server/client"""
@@ -69,23 +71,11 @@ class SV_Model:
         try:
             # Lấy danh sách ứng dụng đang chạy từ hệ thống
             output = subprocess.check_output("tasklist", encoding='utf-8')  # Ensure UTF-8 encoding
-            print(f"Server output: {output}")  # Debugging line
+              # Debugging line
             return output  # Trả lại kết quả cho controller
         except Exception as e:
             return str(e)  # Nếu có lỗi, trả về thông báo lỗi
 
-    # Start app by path
-    # 
-    # def start_app_by_path(app_path):
-    #     """Khởi động ứng dụng từ đường dẫn"""
-    #     if not os.path.isfile(app_path):
-    #         return f"Path '{app_path}' does not exist."
-    #     try:
-    #         subprocess.Popen([app_path], shell=True)
-    #         return f"Started application: {app_path}"
-    #     except Exception as e:
-    #         return f"Error starting application: {str(e)}"
-    
     def start_app_by_name(self, app_name):
         """Khởi động ứng dụng theo tên"""
         try:
