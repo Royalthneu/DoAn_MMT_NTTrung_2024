@@ -1,6 +1,5 @@
 from tkinter import messagebox
-from view.widget_factory import WidgetFactory
-from view.tree_view import ScrolledTreeView
+from model.CL_model import WidgetFactory, ScrolledTreeView
 
 class service_view:
     def __init__(self, client_socket, top=None):

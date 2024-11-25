@@ -1,23 +1,22 @@
 
-import tkinter as tk
 from tkinter import messagebox
-from view.widget_factory import WidgetFactory
-from view.CL_app_view import app_view
-from view.CL_service_view import service_view
-from view.CL_del_copy_view import del_copy_view
-from view.CL_shutdown_view import shutdown_view
-from view.CL_keylogger_view import keylogger_view
+from model.CL_model import WidgetFactory
+from model.CL_model import open_wd_client_socket
 
+from view.CL_service_view import service_view
+# from view.CL_del_copy_view import del_copy_view
+# from view.CL_shutdown_view import shutdown_view
+# from view.CL_keylogger_view import keylogger_view
 
 class root_view:
     def __init__(self, window):        
-        self.window = window 
+        self.window = window         
         self.controller = None
+        self.client_socket = None
         self.window.title("RUN CLIENT")
         self.window.geometry("375x529+100+100")
         self.window.resizable(0, 0)
-        self.window.configure(background="#d9d9d9")
-        
+        self.window.configure(background="#d9d9d9")        
         self.widget_factory = WidgetFactory(window)
         self.create_widgets()
 
@@ -48,8 +47,8 @@ class root_view:
 
         # Separators
         self.widget_factory.create_separator(0.027, 0.113)
-        self.widget_factory.create_separator(0.027, 0.34)
-        
+        self.widget_factory.create_separator(0.027, 0.34)    
+    
     def show_message(self, message):
         messagebox.showinfo("Thông báo", message)
         
@@ -57,66 +56,29 @@ class root_view:
         server_ip, server_port = self.controller.get_ip_and_port()
         if server_ip and server_port:
             # Thực hiện kết nối nếu IP và Port hợp lệ
-            self.controller.connect_to_server(server_ip, server_port)
+            self.controller.connect_to_server(server_ip, server_port)            
+            self.client_socket = self.controller.get_client_socket()
             
     def btn_applications_click(self):
-        self.open_window(app_view)
+        from view.CL_app_view import app_view
+        open_wd_client_socket(self.window, self.client_socket, self.controller, app_view)
         
-    def btn_services_click(self):
-        self.open_window(app_view)
+    # def btn_services_click(self):
+    #     open_window(app_view)
         
-    def btn_shutdown_reset_click(self):
-        self.open_window(app_view)
+    # def btn_shutdown_reset_click(self):
+    #     self.open_window(app_view)
         
-    def btn_view_screen_click(self):
-        self.open_window(app_view)
+    # def btn_view_screen_click(self):
+    #     self.open_window(app_view)
         
-    def btn_keylogger_click(self):
-        self.open_window(app_view)
+    # def btn_keylogger_click(self):
+    #     self.open_window(app_view)
         
-    def btn_file_operations_click(self):
-        self.open_window(app_view)    
-
-    def open_window(self, window_class):
-    # Tạo cửa sổ mới
-        top = tk.Toplevel()
-        # Khởi tạo cửa sổ từ lớp window_class
-        window_instance = window_class(top=top)
-        # Đảm bảo rằng cửa sổ chính không thể click khi cửa sổ top đang mở
-        top.grab_set()
-        
-        
-        #1. Gắn các sự kiện cho nút CL_app_process
-        # if isinstance(window_instance, CL_app_process):
-        #     window_instance.btn_list_app.configure(command=lambda: self.list_apps_running(client_socket))
-        #     window_instance.btn_start_app.configure(command=lambda: self.open_window(client_socket, CL_form_nhap_Name))            
-        #     window_instance.btn_stop_app.configure(command=lambda: self.open_window(client_socket, CL_form_nhap_PID))            
-        #     window_instance.btn_clear_list_app.configure(command=self.clear_list_apps)
-            
-        # elif isinstance(window_instance, CL_form_nhap_Name): 
-        #         # Sự kiện khi nhấn nút btn_nhap_Name
-        #         window_instance.btn_nhap_Name.configure(command=lambda: self.start_app(client_socket, window_instance))
-                
-        # elif isinstance(window_instance, CL_form_nhap_PID): 
-        #         # Sự kiện khi nhấn nút btn_nhap_ID
-        #         window_instance.btn_nhap_PID.configure(command=lambda: self.stop_app(client_socket, window_instance))    
-        
-        #2. Gắn các sự kiện cho nút CL_services_process  
+    # def btn_file_operations_click(self):
+    #     self.open_window(app_view)    
 
 
-        #3. Gắn các sự kiện cho nút CL_shutdown_reset 
-        
-        
-        #4. Gắn các sự kiện cho nút CL_view_screen 
-        
-        
-        #5. Gắn các sự kiện cho nút CL_keylogger 
-        
-        
-        #6. Gắn các sự kiện cho nút CL_del_copy          
-        
-        # Khi cửa sổ top đóng, hủy grab_set
-        top.protocol("WM_DELETE_WINDOW", lambda: (top.grab_release(), top.destroy()))
         
         
         

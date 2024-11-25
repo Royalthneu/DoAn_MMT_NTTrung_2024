@@ -1,6 +1,45 @@
+import socket
+from tkinter import messagebox, ttk
 import tkinter as tk
-from tkinter import ttk
 
+class cl_model:
+    def __init__(self, view):
+        self.client_socket = None
+        self.connected = False
+        self.view = view
+        
+    def connect_to_server(self, server_ip, server_port):
+        if self.connected:
+            raise ConnectionError("Đã kết nối đến server!")        
+        try:
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client_socket.connect((server_ip, server_port))
+            self.connected = True
+            return "Kết nối thành công đến server!"
+        except socket.error as e:
+            self.connected = False
+            self.client_socket = None
+            raise ConnectionError(f"Lỗi khi kết nối đến server: {e}")
+    
+    def get_socket(self):
+        return self.client_socket
+        
+    def send_command(self, client_socket, command):
+        client_socket.sendall(command.encode())  # Mã hóa lệnh và gửi
+
+    def receive_response(self, client_socket, buffer_size=65535):
+        response = client_socket.recv(buffer_size).decode()  # Nhận và giải mã phản hồi
+    
+    def show_message(self, message):
+        messagebox.showinfo("Thông báo", message)
+    
+    def set_ip_address(self, ip):
+        self.server_ip = ip
+
+    def set_port(self, port):
+        self.server_port = port
+        
+#Thiet ke giao dien
 class AutoScroll(object):
     '''Configure the scrollbars for a widget.'''
     def __init__(self, master):
@@ -57,6 +96,8 @@ def _create_container(func):
         return func(cls, container, **kw)
     return wrapped
 
+
+#Thiet ke giao dien
 class ScrolledTreeView(AutoScroll, ttk.Treeview):
     '''A standard ttk Treeview widget with scrollbars that will
     automatically show/hide as needed.'''
@@ -107,4 +148,37 @@ def _on_shiftmouse(event, widget):
         if event.num == 4:
             widget.xview_scroll(-1, 'units')
         elif event.num == 5:
-            widget.xview_scroll(1, 'units')
+            widget.xview_scroll(1, 'units')   
+
+class WidgetFactory:
+    def __init__(self, window):
+        self.window = window
+
+    def create_label(self, text, relx, rely, width, height):
+        label = tk.Label(self.window, text=text, background="#d9d9d9", foreground="#000000", anchor='w')
+        label.place(relx=relx, rely=rely, width=width, height=height)
+        return label
+
+    def create_entry(self, relx, rely, relwidth, height):
+        entry = tk.Entry(self.window, background="white", foreground="#000000")
+        entry.place(relx=relx, rely=rely, relwidth=relwidth, height=height)
+        return entry
+
+    def create_button(self, text, relx, rely, width, height):
+        button = tk.Button(self.window, text=text, background="#d9d9d9", foreground="#000000")
+        button.place(relx=relx, rely=rely, width=width, height=height)
+        return button
+
+    def create_separator(self, relx, rely, relwidth=0.946):
+        separator = ttk.Separator(self.window, orient="horizontal")
+        separator.place(relx=relx, rely=rely, relwidth=relwidth)
+        
+def open_wd_client_socket(root, client_socket, controller, window_class):
+    # Tạo cửa sổ mới
+    top = tk.Toplevel(root)
+    # Khởi tạo cửa sổ từ lớp window_class
+    window_class (top=top, client_socket=client_socket, controller=controller)
+    # Đảm bảo rằng cửa sổ chính không thể click khi cửa sổ top đang mở
+    top.grab_set()    
+    # Khi cửa sổ top đóng, hủy grab_set
+    top.protocol("WM_DELETE_WINDOW", lambda: (top.grab_release(), top.destroy()))

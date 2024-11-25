@@ -1,7 +1,7 @@
 import socket
 from tkinter import messagebox
 
-class root_controller:
+class cl_controller:
     def __init__(self, view, model):
         self.view = view
         self.model = model
@@ -21,6 +21,10 @@ class root_controller:
             self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View
         except ConnectionError as e:
             self.view.show_message(f"Lỗi: {str(e)}")  # Hiển thị lỗi nếu kết nối thất bại
+    
+    def get_client_socket(self):
+        """Lấy client_socket từ model"""
+        return self.model.get_socket()
 
     def get_ip_and_port(self):
         """Lấy IP và Port từ các Entry, đồng thời kiểm tra tính hợp lệ"""
@@ -54,6 +58,15 @@ class root_controller:
             return 1 <= port <= 65535
         except ValueError:
             return False
+        
+    def start_app(self, client_socket, app_name):
+        self.model.send_command(client_socket, f"START_APP_BY_NAME {app_name}")
+        response = self.model.receive_response(client_socket)
+        return response
 
+    def stop_app(self, client_socket, app_pid):
+        self.model.send_command(client_socket, f"STOP_APP_BY_PID {app_pid}")
+        response = self.model.receive_response(client_socket)
+        return response
         
     
