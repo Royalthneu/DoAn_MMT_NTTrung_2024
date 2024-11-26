@@ -88,10 +88,20 @@ class cl_model:
         
         return service_list
     
+    # Hàm kiểm tra sự tồn tại của file cấu hình
+    def check_config_file(self, CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r"):
+                return True
+        except FileNotFoundError:
+            return False 
+    
     # Hàm cập nhật cấu hình
-    def update_config(self, CONFIG_FILE, server_ip=None, server_port=None, client_ip=None, client_port=None):
-        if self.check_config_file(CONFIG_FILE):
-            with open(CONFIG_FILE, "r") as file:
+    def update_config_client(self, CONFIG_FILE, server_ip=None, server_port=None, client_ip=None, client_port=None):
+        config_file_path = os.path.join(os.getcwd(), "client", "cl_config.json")
+        print(config_file_path)
+        if self.check_config_file(config_file_path):
+            with open(config_file_path, "r") as file:
                 config = json.load(file)
             
             # Cập nhật các giá trị mới nếu chúng được truyền vào
@@ -103,7 +113,7 @@ class cl_model:
                 config["client_ip"] = client_ip
             if client_port is not None:
                 config["client_port"] = client_port            
-            with open(CONFIG_FILE, "w") as file:
+            with open(config_file_path, "w") as file:
                 json.dump(config, file, indent=4)
             print(f"Configuration updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
         else:

@@ -89,7 +89,7 @@ class SV_Model:
     def stop_app_by_pid(self, pid):
         """Dừng ứng dụng theo PID"""
         try:
-            subprocess.run(["taskkill", "/F", "/PID", str(pid)], check=True)
+            subprocess.run(["taskkill", "/F", "/PID", pid], check=True)
             return f"Stopped application with PID {pid}."
         except Exception as e:
             return f"Error stopping application with PID {pid}: {str(e)}" 
@@ -225,6 +225,14 @@ class SV_Model:
             self.client_view_stream.stop_stream()
             return "Screen sharing stopped."
         return "No screen sharing to stop."
+    
+    # Hàm kiểm tra sự tồn tại của file cấu hình
+    def check_config_file(self, CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r"):
+                return True
+        except FileNotFoundError:
+            return False
 
     # Hàm cập nhật cấu hình
     def update_config_server(self, CONFIG_FILE, server_ip=None, server_port=None, client_ip=None, client_port=None):
@@ -338,12 +346,6 @@ class SV_Model:
             # Nếu file không tồn tại, gửi kích thước 0 để báo lỗi
             client_socket.sendall((0).to_bytes(4, byteorder='big'))
             
-    # Hàm kiểm tra sự tồn tại của file cấu hình
-    def check_config_file(self, CONFIG_FILE):
-        try:
-            with open(CONFIG_FILE, "r"):
-                return True
-        except FileNotFoundError:
-            return False
+
 
     

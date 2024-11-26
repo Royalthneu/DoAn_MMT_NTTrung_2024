@@ -8,6 +8,8 @@ class cl_controller:
     def __init__(self, view, model):
         self.view = view
         self.model = model
+        self.server_ip = None
+        self.server_port = None
         self.client_ip = socket.gethostbyname(socket.gethostname())
         self.client_port = 6789
     
@@ -19,14 +21,18 @@ class cl_controller:
             return
 
         self.model.set_ip_address(server_ip)
-        self.model.set_port(server_port)  
+        self.model.set_port(server_port) 
+        self.server_ip = server_ip
+        self.server_port = server_port
         
         try:
             message = self.model.connect_to_server(server_ip, server_port)  # Gọi hàm connect_to_server từ Model
-            self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View
-            self.model.update_config("cl_config.json", server_ip, server_port, self.client_ip, self.client_port)
+            self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View            
+            
         except ConnectionError as e:
             self.view.show_message(f"Lỗi: {str(e)}")  # Hiển thị lỗi nếu kết nối thất bại
+        
+        self.model.update_config_client("cl_config.json", self.server_ip, self.server_port, self.client_ip, 6789)
     
     def get_client_socket(self):
         """Lấy client_socket từ model"""
@@ -183,10 +189,6 @@ class cl_controller:
         # Khi dừng chia sẻ màn hình
         server.stop_server()
         self.view.show_message("Đã dừng chia sẻ màn hình.")     
-    
-    def update_client_config(self, server_ip=None, server_port=None, client_ip=None, client_port=None):
-        self.model.update_config("cl_config.json", server_ip, server_port, client_ip, client_port)
-        messagebox.showinfo(title="Thông tin",message="Cập nhật cấu hình thành công!")
     
     # def show_client_config(self):
     #     client_ip, client_port = self.model.read_config_client()
