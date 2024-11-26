@@ -64,9 +64,8 @@ class root_view:
         if server_ip and server_port:
             try:
                 # Thực hiện kết nối nếu IP và Port hợp lệ
-                connect = self.controller.connect_to_server(server_ip, server_port)
-                if connect:
-                    self.client_socket = self.controller.get_client_socket()
+                self.controller.connect_to_server(server_ip, server_port)
+                self.client_socket = self.controller.get_client_socket()
             except Exception as e:
                 # Xử lý lỗi khi có exception
                 self.show_message(f"Lỗi khi kết nối: {str(e)}")
