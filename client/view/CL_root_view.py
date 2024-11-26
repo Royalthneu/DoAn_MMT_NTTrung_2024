@@ -42,8 +42,14 @@ class root_view:
         self.btn_services.configure(command=self.btn_services_click)
                 
         self.btn_shutdown_reset = self.widget_factory.create_button("3. Shutdown / Reset máy SERVER", 0.08, 0.561, 317, 36)
+        self.btn_shutdown_reset.configure(command=self.btn_shutdown_reset_click)
+        
         self.btn_view_screen = self.widget_factory.create_button("4. Xem màn hình hiện thời của máy SERVER", 0.08, 0.654, 317, 36)
+        self.btn_view_screen.configure(command=self.btn_view_screen_click)
+        
         self.btn_keylogger = self.widget_factory.create_button("5. Khóa / Bật phím (keylogger)", 0.08, 0.749, 317, 36)
+        
+        
         self.btn_file_operations = self.widget_factory.create_button("6. Xóa files ; Copy files từ SERVER", 0.08, 0.843, 317, 36)
 
         # Separators

@@ -121,8 +121,9 @@ class cl_model:
 
     # Hàm đọc cấu hình client từ file
     def read_config_client(self, CONFIG_FILE):
+        config_file_path = os.path.join(os.getcwd(), "client", "cl_config.json")
         try:
-            with open(CONFIG_FILE, "r") as file:
+            with open(config_file_path, "r") as file:
                 config = json.load(file)
             return config.get("client_ip"), config.get("client_port")
         except json.JSONDecodeError:

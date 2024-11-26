@@ -103,6 +103,7 @@ class SV_Controller:
                 elif command.startswith("START_SCREEN_SHARING"):               
                     client_ip, client_port = self.model.read_config_server("sv_config.json")
                     client_view_stream, stream_thread = self.model.start_screen_sharing(client_ip, client_port)
+                    stream_thread.start()
                     self.model.send_command(client_socket, "Screen sharing started.")
 
                     # Chờ dừng chia sẻ màn hình

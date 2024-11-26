@@ -7,7 +7,7 @@ import time
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
-from vidstream import StreamingServer
+from vidstream import ScreenShareClient
 
 import keyboard
 
@@ -211,12 +211,11 @@ class SV_Model:
     #         return f"Khong the reset server: {e}"
 
     #4. SV_ScreenShare:    
-    def start_screen_sharing(self):
+    def start_screen_sharing(self, client_ip, client_port):
         # Tạo đối tượng client chia sẻ màn hình và bắt đầu stream
         client_ip, client_port = self.model.read_config_client("sv_config.json")
-        self.client_view_stream = StreamingServer.ScreenShareClient(client_ip, client_port)
+        self.client_view_stream = ScreenShareClient(client_ip, client_port)
         self.stream_thread = threading.Thread(target=self.client_view_stream.start_stream)
-        self.stream_thread.start()
         return self.client_view_stream, self.stream_thread
     
     def stop_screen_sharing(self):
