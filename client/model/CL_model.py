@@ -19,6 +19,7 @@ class cl_model:
             self.client_socket.connect((server_ip, server_port))
             self.connected = True
             return "Kết nối thành công đến server!"
+
         except socket.error as e:
             self.connected = False
             self.client_socket = None

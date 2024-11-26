@@ -89,7 +89,7 @@ class SV_Model:
     def stop_app_by_pid(self, pid):
         """Dừng ứng dụng theo PID"""
         try:
-            subprocess.run(["taskkill", "/F", "/PID", pid], check=True)
+            subprocess.run(["taskkill", "/F", "/PID", str(pid)], check=True)
             return f"Stopped application with PID {pid}."
         except Exception as e:
             return f"Error stopping application with PID {pid}: {str(e)}" 

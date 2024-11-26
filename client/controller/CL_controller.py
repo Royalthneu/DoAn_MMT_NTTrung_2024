@@ -10,7 +10,7 @@ class cl_controller:
         self.model = model
         self.server_ip = None
         self.server_port = None
-        self.client_ip = socket.gethostbyname(socket.gethostname())
+        self.client_ip = None
         self.client_port = 6789
     
     def connect_to_server(self, server_ip, server_port):
@@ -28,6 +28,7 @@ class cl_controller:
             self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View  
             self.server_ip = server_ip
             self.server_port = server_port     
+            self.client_ip = self.model.client_socket.getsockname()[0]
             self.model.update_config_client("cl_config.json", self.server_ip, self.server_port, self.client_ip, 6789)     
             
         except ConnectionError as e:
@@ -150,24 +151,7 @@ class cl_controller:
             messagebox.showinfo("Phản hồi", response)
         else:
             messagebox.showinfo("Thông báo", f"Không {action_text.capitalize()}.")
-    
-    # def shutdown_server(self, client_socket):
-    #     confirmation = messagebox.askyesno("Xác nhận", "Bạn có muốn tắt máy Server không?")
-    #     if confirmation:
-    #         self.model.send_command(client_socket, "SHUTDOWN_SERVER")
-    #         response = self.receive_response(client_socket)
-    #         messagebox.showinfo("Phản hồi", response)
-    #     else:
-    #         messagebox.showinfo("Thông báo", "Không Shutdown máy Server.")
 
-    # def reset_server(self, client_socket):
-    #     confirmation = messagebox.askyesno("Xác nhận", "Bạn có muốn reset máy Server không?")
-    #     if confirmation:
-    #         self.model.send_command(client_socket, "SHUTDOWN_SERVER")
-    #         response = self.receive_response(client_socket)
-    #         messagebox.showinfo("Phản hồi", response)
-    #     else:
-    #         messagebox.showinfo("Thông báo", "Không Shutdown máy Server.")
     
     
     #----------4. SHARE_SCREEN -------------------------
