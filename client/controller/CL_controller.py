@@ -21,19 +21,18 @@ class cl_controller:
             return
 
         self.model.set_ip_address(server_ip)
-        self.model.set_port(server_port) 
-        self.server_ip = server_ip
-        self.server_port = server_port
+        self.model.set_port(server_port)         
         
         try:
             message = self.model.connect_to_server(server_ip, server_port)  # Gọi hàm connect_to_server từ Model
-            self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View            
+            self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View  
+            self.server_ip = server_ip
+            self.server_port = server_port     
+            self.model.update_config_client("cl_config.json", self.server_ip, self.server_port, self.client_ip, 6789)     
             
         except ConnectionError as e:
             self.view.show_message(f"Lỗi: {str(e)}")  # Hiển thị lỗi nếu kết nối thất bại
-        
-        self.model.update_config_client("cl_config.json", self.server_ip, self.server_port, self.client_ip, 6789)
-    
+            
     def get_client_socket(self):
         """Lấy client_socket từ model"""
         return self.model.get_socket()
@@ -45,7 +44,7 @@ class cl_controller:
 
         # Kiểm tra nếu IP hợp lệ
         if not self.is_valid_ip(ip):
-            self.show_message("IP không hợp lệ! Vui lòng nhập IP đúng.")
+            self.view.show_message("IP không hợp lệ! Vui lòng nhập IP đúng.")
             return None, None  # Trả về None nếu không hợp lệ
 
         # Kiểm tra nếu Port hợp lệ

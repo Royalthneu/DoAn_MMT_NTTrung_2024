@@ -62,9 +62,14 @@ class root_view:
     def btn_connect_click(self):
         server_ip, server_port = self.controller.get_ip_and_port()
         if server_ip and server_port:
-            # Thực hiện kết nối nếu IP và Port hợp lệ
-            self.controller.connect_to_server(server_ip, server_port)            
-            self.client_socket = self.controller.get_client_socket()
+            try:
+                # Thực hiện kết nối nếu IP và Port hợp lệ
+                connect = self.controller.connect_to_server(server_ip, server_port)
+                if connect:
+                    self.client_socket = self.controller.get_client_socket()
+            except Exception as e:
+                # Xử lý lỗi khi có exception
+                self.show_message(f"Lỗi khi kết nối: {str(e)}")
             
     def btn_applications_click(self):
         from view.CL_app_view import app_view

@@ -125,95 +125,24 @@ class SV_Model:
 
 
     #---------------3. SV_Shutdown: --------------------------  
-    def shutdown_server(self):
+    def shutdown_server():
         try:
-            confirmation = messagebox.askyesno("Xác nhận", "Bạn có muốn tắt máy Server không?")
-            if confirmation:
-                # Hiển thị đếm ngược
-                proceed = self.run_countdown("Server sẽ tắt sau 10 giây...")
-                if proceed:
-                    # Thực hiện lệnh Shutdown
-                    self.model.run_powershell_command("Stop-Computer -Force")
-                    messagebox.showinfo("Thông báo", "Server is shutting down...")
-                else:
-                    messagebox.showinfo("Thông báo", "Đã hủy lệnh Shutdown.")
-            else:
-                messagebox.showinfo("Thông báo", "Không tắt máy Server.")
+            SV_Model.run_powershell_command("Stop-Computer -Force")
+            return "Server is shutting down..."
         except Exception as e:
-            messagebox.showerror("Lỗi", f"Không thể shutdown server: {e}")
-
-    def reset_server(self):
+            return f"Khong the shutdown server: {e}"
+    
+    def reset_server():
         try:
-            confirmation = messagebox.askyesno("Xác nhận", "Bạn có muốn reset máy Server không?")
-            if confirmation:
-                # Hiển thị đếm ngược
-                proceed = self.run_countdown("Server sẽ reset sau 10 giây...")
-                if proceed:
-                    # Thực hiện lệnh Reset
-                    self.model.run_powershell_command("Restart-Computer -Force")
-                    messagebox.showinfo("Thông báo", "Server is resetting...")
-                else:
-                    messagebox.showinfo("Thông báo", "Đã hủy lệnh Reset.")
-            else:
-                messagebox.showinfo("Thông báo", "Không reset máy Server.")
+            SV_Model.run_powershell_command("Restart-Computer -Force")
+            return "Server is reset..."
         except Exception as e:
-            messagebox.showerror("Lỗi", f"Không thể reset server: {e}")
-    
-    def show_progress_bar(self, message):
-        # Tạo cửa sổ đếm ngược với thanh tiến trình và nút Hủy
-        progress_window = tk.Toplevel(self.root)
-        progress_window.title(message)
-        tk.Label(progress_window, text=message).pack(pady=10)
-
-        self.progress = ttk.Progressbar(progress_window, length=300, mode="determinate", maximum=10)
-        self.progress.pack(pady=10)
-
-        # Thêm nút Hủy
-        cancel_button = tk.Button(progress_window, text="Hủy", command=self.cancel_countdown_process)
-        cancel_button.pack(pady=10)
-
-        return progress_window
-
-    def cancel_countdown_process(self):
-        # Đặt trạng thái hủy
-        self.cancel_countdown = True
-
-    def run_countdown(self, message):
-        # Hiển thị cửa sổ đếm ngược
-        self.cancel_countdown = False
-        progress_window = self.show_progress_bar(message)
-
-        # Đếm ngược từ 10 đến 0
-        for i in range(10, 0, -1):
-            if self.cancel_countdown:  # Kiểm tra nếu người dùng nhấn Hủy
-                progress_window.destroy()
-                return False  # Dừng quá trình
-
-            self.progress["value"] = 10 - i
-            self.root.update_idletasks()
-            time.sleep(1)
-
-        progress_window.destroy()
-        return True  # Tiếp tục thực hiện lệnh    
-    
-    # def shutdown_server():
-    #     try:
-    #         SV_Model.run_powershell_command("Stop-Computer -Force")
-    #         return "Server is shutting down..."
-    #     except Exception as e:
-    #         return f"Khong the shutdown server: {e}"
-    
-    # def reset_server():
-    #     try:
-    #         SV_Model.run_powershell_command("Restart-Computer -Force")
-    #         return "Server is reset..."
-    #     except Exception as e:
-    #         return f"Khong the reset server: {e}"
+            return f"Khong the reset server: {e}"
 
     #4. SV_ScreenShare:    
     def start_screen_sharing(self, client_ip, client_port):
         # Tạo đối tượng client chia sẻ màn hình và bắt đầu stream
-        client_ip, client_port = self.model.read_config_client("sv_config.json")
+        client_ip, client_port = self.read_config_client("sv_config.json")
         self.client_view_stream = ScreenShareClient(client_ip, client_port)
         self.stream_thread = threading.Thread(target=self.client_view_stream.start_stream)
         return self.client_view_stream, self.stream_thread
@@ -235,8 +164,9 @@ class SV_Model:
 
     # Hàm cập nhật cấu hình
     def update_config_server(self, CONFIG_FILE, server_ip=None, server_port=None, client_ip=None, client_port=None):
-        if self.check_config_file(CONFIG_FILE):
-            with open(CONFIG_FILE, "r") as file:
+        config_file_path = os.path.join(os.getcwd(), "server", CONFIG_FILE)
+        if self.check_config_file(config_file_path):
+            with open(config_file_path, "r") as file:
                 config = json.load(file)
             
             # Cập nhật các giá trị mới nếu chúng được truyền vào
@@ -248,7 +178,7 @@ class SV_Model:
                 config["client_ip"] = client_ip
             if client_port is not None:
                 config["client_port"] = client_port            
-            with open(CONFIG_FILE, "w") as file:
+            with open(config_file_path, "w") as file:
                 json.dump(config, file, indent=4)
             print(f"Configuration updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
         else:
@@ -256,8 +186,9 @@ class SV_Model:
 
     # Hàm đọc cấu hình server từ file
     def read_config_server(self, CONFIG_FILE):
+        config_file_path = os.path.join(os.getcwd(), "server", CONFIG_FILE)
         try:
-            with open(CONFIG_FILE, "r") as file:
+            with open(config_file_path, "r") as file:
                 config = json.load(file)
             return config.get("server_ip"), config.get("server_port")
         except json.JSONDecodeError:
@@ -267,10 +198,10 @@ class SV_Model:
             print("File cấu hình không tồn tại.")
             return None, None
         
-    # Hàm đọc cấu hình client từ file
     def read_config_client(self, CONFIG_FILE):
+        config_file_path = os.path.join(os.getcwd(), "server", CONFIG_FILE)
         try:
-            with open(CONFIG_FILE, "r") as file:
+            with open(config_file_path, "r") as file:
                 config = json.load(file)
             return config.get("client_ip"), config.get("client_port")
         except json.JSONDecodeError:
@@ -280,8 +211,7 @@ class SV_Model:
             print("File cấu hình không tồn tại.")
             return None, None
 
-    #5. SV_Keylogger:
-    
+    #5. SV_Keylogger:    
     def start_keylogger():
         keys_pressed = ""
         MAX_LINE_LENGTH = 50
