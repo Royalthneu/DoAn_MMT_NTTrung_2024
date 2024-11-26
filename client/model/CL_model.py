@@ -1,4 +1,5 @@
 import socket
+import subprocess
 from tkinter import messagebox, ttk
 import tkinter as tk
 
@@ -64,7 +65,27 @@ class cl_model:
         
         return app_list
 
+    def parse_service_list(self, response):
+        service_list = []
+        try:
+            # Tách phản hồi thành các dòng
+            lines = response.splitlines()
+            # Loại bỏ các dòng trống hoặc không cần thiết và dòng tiêu đề
+            lines = [line.strip() for line in lines if line.strip()]
+            
+            # Bỏ qua dòng tiêu đề (dòng đầu tiên)
+            for line in lines[1:]:
+                # Tách dòng theo khoảng trắng để lấy các thành phần
+                parts = line.split(None, 1)  # Tách thành tối đa 2 phần
+                if len(parts) == 2:
+                    pid = parts[0]
+                    service_name = parts[1]
+                    service_list.append((pid, service_name))
+        except Exception as e:
+            raise ValueError(f"Lỗi khi phân tích danh sách dịch vụ: {e}")
         
+        return service_list
+            
 #Thiet ke giao dien
 class AutoScroll(object):
     '''Configure the scrollbars for a widget.'''
@@ -199,6 +220,16 @@ class WidgetFactory:
         separator = ttk.Separator(self.window, orient="horizontal")
         separator.place(relx=relx, rely=rely, relwidth=relwidth)
         
+def open_wd_client_socket_from(root, client_socket, controller, window_class, from_screen):
+    # Tạo cửa sổ mới
+    top = tk.Toplevel(root)
+    # Khởi tạo cửa sổ từ lớp window_class
+    window_class (top=top, client_socket=client_socket, controller=controller, from_screen=from_screen)
+    # Đảm bảo rằng cửa sổ chính không thể click khi cửa sổ top đang mở
+    top.grab_set()    
+    # Khi cửa sổ top đóng, hủy grab_set
+    top.protocol("WM_DELETE_WINDOW", lambda: (top.grab_release(), top.destroy()))
+    
 def open_wd_client_socket(root, client_socket, controller, window_class):
     # Tạo cửa sổ mới
     top = tk.Toplevel(root)
@@ -208,3 +239,14 @@ def open_wd_client_socket(root, client_socket, controller, window_class):
     top.grab_set()    
     # Khi cửa sổ top đóng, hủy grab_set
     top.protocol("WM_DELETE_WINDOW", lambda: (top.grab_release(), top.destroy()))
+    
+def run_powershell_command(command):
+    """Hàm thực thi lệnh PowerShell và trả về kết quả hoặc lỗi"""
+    try:
+        result = subprocess.run(
+            ["powershell", "-Command", command],
+            check=True, capture_output=True, text=True
+        )
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        return e.stderr

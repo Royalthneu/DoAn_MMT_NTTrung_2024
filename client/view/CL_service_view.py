@@ -1,10 +1,11 @@
 from tkinter import messagebox
-from model.CL_model import WidgetFactory, ScrolledTreeView
+from model.CL_model import WidgetFactory, ScrolledTreeView, open_wd_client_socket_from
 
 class service_view:
-    def __init__(self, client_socket, top=None):
+    def __init__(self, top, client_socket, controller):
         self.top = top
         self.client_socket = client_socket
+        self.controller = controller
         self.top.geometry("420x300+853+120")
         self.top.minsize(120, 1)
         self.top.maxsize(5564, 1901)
@@ -27,7 +28,35 @@ class service_view:
         
         # Button configuration
         self.btn_list_service = self.widget_factory.create_button("LIST SERVICES", 0.05, 0.043, 87, 36)
+        self.btn_list_service.configure(command= self.btn_list_service_click)        
+        
         self.btn_start_service = self.widget_factory.create_button("START SERVICES", 0.3, 0.043, 87, 36)
+        self.btn_start_service.configure(command= self.btn_start_service_click)
+        
         self.btn_stop_service = self.widget_factory.create_button("STOP SERVICES", 0.55, 0.043, 87, 36)
+        self.btn_stop_service.configure(command= self.btn_stop_service_click)
+        
         self.btn_clear_list_service = self.widget_factory.create_button("CLEAR", 0.802, 0.043, 57, 36)
+        self.btn_clear_list_service.configure(command= self.btn_clear_list_service_click)
+
+    def btn_list_service_click(self):
+        self.controller.list_services(self.client_socket, self.update_tree_view)
+    
+    def btn_start_service_click(self):
+        from view.CL_frm_nhap_Ten_view import frm_nhap_Ten_view
+        open_wd_client_socket_from(self.top, self.client_socket, self.controller, frm_nhap_Ten_view, from_screen="service_view")   
+    
+    def btn_stop_service_click(self):
+        from view.CL_frm_nhap_PID_view import frm_nhap_PID_view
+        open_wd_client_socket_from(self.top, self.client_socket, self.controller, frm_nhap_PID_view, from_screen="service_view")  
+        
+    def btn_clear_list_service_click(self):   
+        for item in self.tree_app_1.get_children():
+            self.tree_app_1.delete(item)
+        
+    def update_tree_view(self, services_list):        
+        for item in self.tree_app_1.get_children():
+            self.tree_app_1.delete(item)
+        for pid, services_name in services_list:
+            self.tree_app_1.insert("", "end", text=pid, values=(services_name,))
         

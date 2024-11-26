@@ -39,6 +39,7 @@ class root_view:
         self.btn_applications.configure(command=self.btn_applications_click)
         
         self.btn_services = self.widget_factory.create_button("2. List / Start / Stop các Services", 0.08, 0.469, 317, 36)
+        self.btn_services.configure(command=self.btn_services_click)
                 
         self.btn_shutdown_reset = self.widget_factory.create_button("3. Shutdown / Reset máy SERVER", 0.08, 0.561, 317, 36)
         self.btn_view_screen = self.widget_factory.create_button("4. Xem màn hình hiện thời của máy SERVER", 0.08, 0.654, 317, 36)
@@ -63,8 +64,9 @@ class root_view:
         from view.CL_app_view import app_view
         open_wd_client_socket(self.window, self.client_socket, self.controller, app_view)
         
-    # def btn_services_click(self):
-    #     open_window(app_view)
+    def btn_services_click(self):
+        from view.CL_service_view import service_view
+        open_wd_client_socket(self.window, self.client_socket, self.controller, service_view)
         
     # def btn_shutdown_reset_click(self):
     #     self.open_window(app_view)

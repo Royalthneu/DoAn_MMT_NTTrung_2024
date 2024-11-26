@@ -50,9 +50,8 @@ class SV_Controller:
                 command = self.model.receive_response(client_socket)
 
                 #1. List app running
-                if command == "CM_LIST_APPS_RUNNING":
+                if command == "LIST_APPS_RUNNING":
                     result = self.model.list_apps_running()  # Chuyển lệnh trả về từ model
-                    print(f"Server output: {result}")
                     self.model.send_command_utf8(client_socket, result)  # Gửi kết quả lại cho client
                 
                 elif command.startswith("START_APP_BY_NAME"):
@@ -71,7 +70,7 @@ class SV_Controller:
                 #2. List services running
                 elif command == "LIST_SERVICES_RUNNING":
                     result = self.model.list_running_services()
-                    self.model.send_command(client_socket, result)
+                    self.model.send_command_utf8(client_socket, result)
 
                 elif command.startswith("START_SERVICE"):
                     service_name = command.split(" ", 1)[1]

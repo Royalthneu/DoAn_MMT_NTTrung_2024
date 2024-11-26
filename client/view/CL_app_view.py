@@ -1,5 +1,5 @@
 from tkinter import messagebox
-from model.CL_model import open_wd_client_socket, WidgetFactory, ScrolledTreeView
+from model.CL_model import open_wd_client_socket, WidgetFactory, ScrolledTreeView, open_wd_client_socket_from
 
 class app_view:
     def __init__(self, top, client_socket, controller):
@@ -44,11 +44,11 @@ class app_view:
     
     def btn_start_app_click(self):
         from view.CL_frm_nhap_Ten_view import frm_nhap_Ten_view
-        open_wd_client_socket(self.top, self.client_socket, self.controller, frm_nhap_Ten_view)   
+        open_wd_client_socket_from(self.top, self.client_socket, self.controller, frm_nhap_Ten_view, from_screen="app_view")   
     
     def btn_stop_app_click(self):
         from view.CL_frm_nhap_PID_view import frm_nhap_PID_view
-        open_wd_client_socket(self.top, self.client_socket, self.controller, frm_nhap_PID_view)  
+        open_wd_client_socket_from(self.top, self.client_socket, self.controller, frm_nhap_PID_view, from_screen="app_view")  
         
     def btn_clear_list_app_click(self):   
         for item in self.tree_app.get_children():

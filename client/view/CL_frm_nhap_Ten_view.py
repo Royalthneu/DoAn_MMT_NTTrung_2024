@@ -1,9 +1,12 @@
+import threading
+from tkinter import messagebox
 from model.CL_model import WidgetFactory
 
 class frm_nhap_Ten_view:
-    def __init__(self, top, client_socket, controller):
+    def __init__(self, top, client_socket, controller, from_screen):
         self.top = top
         self.client_socket = client_socket
+        self.from_screen = from_screen
         self.controller = controller
         self.view = None        
         self.top.geometry("350x60+20+200")
@@ -29,8 +32,18 @@ class frm_nhap_Ten_view:
     def btn_nhap_Ten_click(self):
         name = self.entry_nhap_Ten.get()
         if name:
-            self.controller.start_app(self.client_socket, name)
-            self.top.destroy()
+            # Start a new thread to run start_app or start_service
+            threading.Thread(target=self.run_in_background, args=(name,)).start()
         else:
-            message = "Tên không hợp lệ! Vui lòng nhập lại."
-            self.view.show_message(message)
+            messagebox.showerror(title="Lỗi Tên", message="Tên không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
+    
+    def run_in_background(self, name):
+        # This method will run in a separate thread
+        if self.from_screen == "app_view":
+            self.controller.start_app(self.client_socket, name)  # Running start_app on the controller
+        elif self.from_screen == "service_view":
+            self.controller.start_service(self.client_socket, name)  # Running start_service on the controller
+        
+        # Once the background task is done, we update the UI in the main thread
+        self.top.after(0, self.top.destroy())  # Schedule the UI update to run in the main thread
+    

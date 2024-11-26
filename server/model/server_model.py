@@ -65,6 +65,29 @@ class SV_Model:
         """Nhận phản hồi từ server/client"""
         return socket.recv(buffer_size).decode()
     
+    def run_powershell_command(self, command):
+        try:
+            result = subprocess.run(
+                ["powershell", "-Command", command],
+                check=True, capture_output=True, text=True
+            )
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            return e.stderr
+        
+    def run_powershell_command_admin(self, command):
+        try:
+            result = subprocess.run(
+                ["sc.exe"] + command.split(),
+                check=True,
+                capture_output=True,
+                text=True,
+                shell=True
+            )
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            return e.stderr
+    
     #1. SV_App_Process:    
     def list_apps_running(self):
         """Lấy danh sách ứng dụng đang chạy từ hệ thống"""
@@ -85,46 +108,39 @@ class SV_Model:
         except Exception as e:
             return f"Error starting application with name {app_name}: {str(e)}"
     
-    
     def stop_app_by_pid(self, pid):
         """Dừng ứng dụng theo PID"""
         try:
             subprocess.run(["taskkill", "/F", "/PID", str(pid)], check=True)
             return f"Stopped application with PID {pid}."
         except Exception as e:
-            return f"Error stopping application with PID {pid}: {str(e)}"   
-
+            return f"Error stopping application with PID {pid}: {str(e)}" 
     
     def clear_tree(treeview):
         """Xóa tất cả các mục trong Treeview"""
         for item in treeview.get_children():
             treeview.delete(item)
 
-    #2. SV_Services:
+    #2. SV_Services:    
+    def list_running_services(self):
+        self.command = "Get-WmiObject Win32_Service | Where-Object { $_.State -eq 'Running' } | Select-Object -Property ProcessId, Name"
+        return self.run_powershell_command(self.command)
     
-    def list_running_services():
-        command = "Get-Service | Where-Object { $_.Status -eq 'Running' } | Format-Table -HideTableHeaders -Property Name,DisplayName"
-        return SV_Model.run_powershell_command(command)
+    def start_service(self, service_name):
+        self.command = f"start {service_name}"
+        return self.run_powershell_command_admin(self.command)
+    
+    def stop_service(self, service_pid):
+        self.command = f"taskkill /PID {service_pid} /F"
+        return self.run_powershell_command_admin(self.command)
 
-    
-    def start_service(service_name):
-        command = f"Start-Process sc.exe -ArgumentList 'start', '{service_name}' -Verb runAs"
-        return SV_Model.run_powershell_command(command)
-
-    
-    def stop_service(service_name):
-        command = f"Start-Process sc.exe -ArgumentList 'stop', '{service_name}' -Verb runAs"
-        return SV_Model.run_powershell_command(command)
-
-    #3. SV_Shutdown:
-    
+    #3. SV_Shutdown:    
     def shutdown_server():
         try:
             SV_Model.run_powershell_command("Stop-Computer -Force")
             return "Server is shutting down..."
         except Exception as e:
             return f"Khong the shutdown server: {e}"
-
     
     def reset_server():
         try:
@@ -133,8 +149,7 @@ class SV_Model:
         except Exception as e:
             return f"Khong the reset server: {e}"
 
-    #4. SV_ScreenShare:
-    
+    #4. SV_ScreenShare:    
     def start_screen_sharing(client_ip, client_port):
         # Tạo đối tượng client chia sẻ màn hình và bắt đầu stream
         client_view_stream = StreamingServer.ScreenShareClient(client_ip, client_port)

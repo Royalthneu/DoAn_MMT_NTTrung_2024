@@ -60,29 +60,20 @@ class cl_controller:
         except ValueError:
             return False
     
+    
+    #----------1. APP PROCESS ---------------------------
     def list_apps(self, client_socket, update_callback):
-        """
-        Khởi chạy một thread để xử lý lệnh list_apps và trả về app_list qua callback.
-        """
         thread = threading.Thread(
             target=self._list_apps_thread, 
             args=(client_socket, update_callback), 
-            daemon=True
-        )
+            daemon=True)
         thread.start()
 
     def _list_apps_thread(self, client_socket, update_callback):
-        """
-        Hàm thực hiện gửi lệnh, nhận phản hồi và gọi callback để cập nhật giao diện.
-        """
         try:
-            # Gửi lệnh đến server
-            self.model.send_command(client_socket, "CM_LIST_APPS_RUNNING")
-            # Nhận phản hồi từ server
+            self.model.send_command(client_socket, "LIST_APPS_RUNNING")
             response = self.model.receive_response_utf8(client_socket)
-            # Parse danh sách ứng dụng
             app_list = self.model.parse_app_list(response)
-            # Gọi callback để cập nhật TreeView hoặc xử lý dữ liệu
             update_callback(app_list)
         except Exception as e:
             print(f"Lỗi trong thread list_apps: {e}")
@@ -97,6 +88,35 @@ class cl_controller:
     def stop_app(self, client_socket, app_pid):
         self.model.send_command(client_socket, f"STOP_APP_BY_PID {app_pid}")
         response = self.model.receive_response(client_socket)
-        return response
+        return response   
+    
+     
+    #----------2. SERVICE PROCESS ---------------------------
+    def list_services(self, client_socket, update_callback):
+        thread = threading.Thread(
+            target=self._list_services_thread, 
+            args=(client_socket, update_callback), 
+            daemon=True)
+        thread.start()
+
+    def _list_services_thread(self, client_socket, update_callback):
+        try:
+            self.model.send_command(client_socket, "LIST_SERVICES_RUNNING")
+            response = self.model.receive_response_utf8(client_socket)
+            services_list = self.model.parse_service_list(response)
+            update_callback(services_list)
+        except Exception as e:
+            print(f"Lỗi trong thread services_list: {e}")
+            # Gọi callback với danh sách rỗng khi có lỗi
+            update_callback([])
         
+    def start_service(self, client_socket, service_name):
+        self.model.send_command(client_socket, f"START_SERVICE {service_name}")
+        response = self.model.receive_response(client_socket)
+        return response
+
+    def stop_service(self, client_socket, service_pid):
+        self.model.send_command(client_socket, f"STOP_SERVICE {service_pid}")
+        response = self.model.receive_response(client_socket)
+        return response        
     
