@@ -68,11 +68,12 @@ class root_view:
         from view.CL_service_view import service_view
         open_wd_client_socket(self.window, self.client_socket, self.controller, service_view)
         
-    # def btn_shutdown_reset_click(self):
-    #     self.open_window(app_view)
+    def btn_shutdown_reset_click(self):
+        from view.CL_shutdown_view import shutdown_view
+        open_wd_client_socket(self.window, self.client_socket, self.controller, shutdown_view)
         
-    # def btn_view_screen_click(self):
-    #     self.open_window(app_view)
+    def btn_view_screen_click(self):
+        self.controller.share_screen_server(self.client_socket)
         
     # def btn_keylogger_click(self):
     #     self.open_window(app_view)

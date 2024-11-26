@@ -6,12 +6,14 @@ class SV_Controller:
         self.model = model
         self.view = view
         self.client_socket = None
+        self.client_ip = None
+        self.client_port = None
         self.view.btn_open.config(command=self.start_server)
         self.view.btn_close.config(command=self.stop_server)
 
     def start_server(self):
         if self.model.start_server():
-            self.view.show_message("THÔNG BÁO", f"Server is listening on: {self.model.server_ip}:{self.model.port}")
+            self.view.show_message("THÔNG BÁO", f"Server is listening on: {self.model.server_ip}:{self.model.server_port}")
             self.view.set_lbl_status("Server is opening")
             self.view.set_lbl_server_ip(self.model.server_ip)
             self.view.disable_open_button()
@@ -29,6 +31,8 @@ class SV_Controller:
                 self.client_socket, self.addr = self.model.accept_client()
                 if self.client_socket:
                     print(f"Client connected from {self.addr}")
+                    self.client_ip, self.client_port = self.addr
+                    self.model.update_config_server("sv_config.json", self.model.server_ip, self.model.server_port, self.client_ip, 6789)
                     client_thread = threading.Thread(
                         target=self.handle_client, args=(self.client_socket, self.addr), daemon=True)
                     client_thread.start()
@@ -42,6 +46,7 @@ class SV_Controller:
             self.stop_server()
             self.view.enable_open_button()
             self.view.disable_close_button()
+
 
     def handle_client(self, client_socket, addr):
         """Xử lý lệnh từ Client"""
@@ -95,13 +100,10 @@ class SV_Controller:
                     self.model.send_command(client_socket, result)
 
                 #4. Screen_share
-                elif command.startswith("START_SCREEN_SHARING"):
-                    # Lấy IP và port từ lệnh
-                    client_ip, client_port = command.split(
-                        " ")[1], int(command.split(" ")[2])
+                elif command.startswith("START_SCREEN_SHARING"):               
+                    client_ip, client_port = self.model.read_config_server("sv_config.json")
                     client_view_stream, stream_thread = self.model.start_screen_sharing(client_ip, client_port)
-                    self.model.send_command(
-                        client_socket, "Screen sharing started.")
+                    self.model.send_command(client_socket, "Screen sharing started.")
 
                     # Chờ dừng chia sẻ màn hình
                     while True:

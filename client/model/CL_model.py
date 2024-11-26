@@ -1,3 +1,5 @@
+import json
+import os
 import socket
 import subprocess
 from tkinter import messagebox, ttk
@@ -85,6 +87,41 @@ class cl_model:
             raise ValueError(f"Lỗi khi phân tích danh sách dịch vụ: {e}")
         
         return service_list
+    
+    # Hàm cập nhật cấu hình
+    def update_config(self, CONFIG_FILE, server_ip=None, server_port=None, client_ip=None, client_port=None):
+        if self.check_config_file(CONFIG_FILE):
+            with open(CONFIG_FILE, "r") as file:
+                config = json.load(file)
+            
+            # Cập nhật các giá trị mới nếu chúng được truyền vào
+            if server_ip is not None:
+                config["server_ip"] = server_ip
+            if server_port is not None:
+                config["server_port"] = server_port
+            if client_ip is not None:
+                config["client_ip"] = client_ip
+            if client_port is not None:
+                config["client_port"] = client_port            
+            with open(CONFIG_FILE, "w") as file:
+                json.dump(config, file, indent=4)
+            print(f"Configuration updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
+        else:
+            print("Configuration file does not exist.")
+
+    # Hàm đọc cấu hình client từ file
+    def read_config_client(self, CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r") as file:
+                config = json.load(file)
+            return config.get("client_ip"), config.get("client_port")
+        except json.JSONDecodeError:
+            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            return None, None
+        except FileNotFoundError:
+            print("File cấu hình không tồn tại.")
+            return None, None
+    
             
 #Thiet ke giao dien
 class AutoScroll(object):

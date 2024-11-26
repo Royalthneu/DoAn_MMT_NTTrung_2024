@@ -6,6 +6,7 @@ from model.CL_model import cl_model
 def main():
     window = tk.Tk()
 
+
     # Khởi tạo các thành phần của MVC
     view = root_view(window)
     model = cl_model (view)    

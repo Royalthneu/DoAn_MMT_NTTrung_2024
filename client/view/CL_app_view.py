@@ -1,5 +1,4 @@
-from tkinter import messagebox
-from model.CL_model import open_wd_client_socket, WidgetFactory, ScrolledTreeView, open_wd_client_socket_from
+from model.CL_model import WidgetFactory, ScrolledTreeView, open_wd_client_socket_from
 
 class app_view:
     def __init__(self, top, client_socket, controller):

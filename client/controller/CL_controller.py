@@ -1,11 +1,15 @@
 import socket
 import threading
 from tkinter import messagebox
+import keyboard
+from vidstream import StreamingServer
 
 class cl_controller:
     def __init__(self, view, model):
         self.view = view
         self.model = model
+        self.client_ip = socket.gethostbyname(socket.gethostname())
+        self.client_port = 6789
     
     def connect_to_server(self, server_ip, server_port):
 
@@ -15,11 +19,12 @@ class cl_controller:
             return
 
         self.model.set_ip_address(server_ip)
-        self.model.set_port(server_port)        
+        self.model.set_port(server_port)  
         
         try:
             message = self.model.connect_to_server(server_ip, server_port)  # Gọi hàm connect_to_server từ Model
             self.view.show_message(message)  # Hiển thị thông báo kết nối thành công trong View
+            self.model.update_config("cl_config.json", server_ip, server_port, self.client_ip, self.client_port)
         except ConnectionError as e:
             self.view.show_message(f"Lỗi: {str(e)}")  # Hiển thị lỗi nếu kết nối thất bại
     
@@ -90,7 +95,6 @@ class cl_controller:
         response = self.model.receive_response(client_socket)
         return response   
     
-     
     #----------2. SERVICE PROCESS ---------------------------
     def list_services(self, client_socket, update_callback):
         thread = threading.Thread(
@@ -120,3 +124,72 @@ class cl_controller:
         response = self.model.receive_response(client_socket)
         return response        
     
+    #----------3. SHUTDOWN & RESET -------------------------
+    def server_action(self, client_socket, action):
+        # Tạo thông điệp xác nhận dựa trên hành động
+        if action == "SHUTDOWN_SERVER":
+            action_text = "tắt máy Server"
+        elif action == "RESET_SERVER":
+            action_text = "reset máy Server"
+        else:
+            action_text = "thực hiện hành động không xác định"
+        
+        # Hộp thoại xác nhận
+        confirmation = messagebox.askyesno("Xác nhận", f"Bạn có muốn {action_text} không?")
+        if confirmation:
+            # Gửi lệnh đến server qua socket
+            self.model.send_command(client_socket, action)
+            
+            # Nhận phản hồi từ server và hiển thị
+            response = self.receive_response(client_socket)
+            messagebox.showinfo("Phản hồi", response)
+        else:
+            messagebox.showinfo("Thông báo", f"Không {action_text.capitalize()}.")
+    
+    # def shutdown_server(self, client_socket):
+    #     confirmation = messagebox.askyesno("Xác nhận", "Bạn có muốn tắt máy Server không?")
+    #     if confirmation:
+    #         self.model.send_command(client_socket, "SHUTDOWN_SERVER")
+    #         response = self.receive_response(client_socket)
+    #         messagebox.showinfo("Phản hồi", response)
+    #     else:
+    #         messagebox.showinfo("Thông báo", "Không Shutdown máy Server.")
+
+    # def reset_server(self, client_socket):
+    #     confirmation = messagebox.askyesno("Xác nhận", "Bạn có muốn reset máy Server không?")
+    #     if confirmation:
+    #         self.model.send_command(client_socket, "SHUTDOWN_SERVER")
+    #         response = self.receive_response(client_socket)
+    #         messagebox.showinfo("Phản hồi", response)
+    #     else:
+    #         messagebox.showinfo("Thông báo", "Không Shutdown máy Server.")
+    
+    
+    #----------4. SHARE_SCREEN -------------------------
+    def share_screen_server(self, client_socket):
+        client_ip, client_port = self.model.read_config_client("cl_config.json")
+        if not client_ip or not client_port:
+            messagebox.showinfo(title="Thông tin", message="Không thể đọc cấu hình.")
+            return
+        
+        self.model.send_command(client_socket, "START_SCREEN_SHARING")
+        server = StreamingServer(client_ip, client_port)
+        server.start_server()  
+        messagebox.showinfo(title="Thông tin", message="Bắt đầu chia sẻ màn hình")
+        
+        # Theo dõi phím ESC để dừng chia sẻ màn hình
+        keyboard.wait('esc')  # Chờ đến khi phím ESC được nhấn
+
+        # Khi dừng chia sẻ màn hình
+        server.stop_server()
+        self.view.show_message("Đã dừng chia sẻ màn hình.")     
+    
+    def update_client_config(self, server_ip=None, server_port=None, client_ip=None, client_port=None):
+        self.model.update_config("cl_config.json", server_ip, server_port, client_ip, client_port)
+        messagebox.showinfo(title="Thông tin",message="Cập nhật cấu hình thành công!")
+    
+    # def show_client_config(self):
+    #     client_ip, client_port = self.model.read_config_client()
+    #     if client_ip and client_port:
+    #         config_message = f"Client IP: {client_ip}\nClient Port: {client_port}"
+    #         messagebox.showinfo(title="Thông tin", message=config_message)
