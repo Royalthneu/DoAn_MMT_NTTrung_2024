@@ -119,22 +119,26 @@ class SV_Model:
         self.command = f"Start-Process sc.exe -ArgumentList 'start', {service_name} -Verb runAs"
         return self.run_powershell_command(self.command)
     
-    def stop_service(self, service_pid):
-        self.command = f"taskkill /PID {service_pid} /F"
-        return self.run_powershell_command(self.command)
+    def stop_service(self, pid):
+        """Dừng dịch vụ theo PID"""
+        try:
+            subprocess.run(["taskkill", "/F", "/PID", str(pid)], check=True)
+            return f"Stopped service with PID {pid}."
+        except Exception as e:
+            return f"Error stopping service with PID {pid}: {str(e)}" 
 
 
     #---------------3. SV_Shutdown: --------------------------  
-    def shutdown_server():
+    def shutdown_server(self):
         try:
-            SV_Model.run_powershell_command("Stop-Computer -Force")
+            self.run_powershell_command("Stop-Computer -Force")
             return "Server is shutting down..."
         except Exception as e:
             return f"Khong the shutdown server: {e}"
     
-    def reset_server():
+    def reset_server(self):
         try:
-            SV_Model.run_powershell_command("Restart-Computer -Force")
+            self.run_powershell_command("Restart-Computer -Force")
             return "Server is reset..."
         except Exception as e:
             return f"Khong the reset server: {e}"

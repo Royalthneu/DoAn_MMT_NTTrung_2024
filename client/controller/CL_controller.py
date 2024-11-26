@@ -147,7 +147,7 @@ class cl_controller:
             self.model.send_command(client_socket, action)
             
             # Nhận phản hồi từ server và hiển thị
-            response = self.receive_response(client_socket)
+            response = self.model.receive_response(client_socket)
             messagebox.showinfo("Phản hồi", response)
         else:
             messagebox.showinfo("Thông báo", f"Không {action_text.capitalize()}.")

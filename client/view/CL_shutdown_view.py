@@ -20,7 +20,7 @@ class shutdown_view:
         self.btn_cl_shutdown_sv.configure(command=self.btn_cl_shutdown_sv_click)
         
         self.btn_cl_reset_sv = self.widget_factory.create_button("RESET SERVER", 0.246, 0.545, 167, 36)
-        self.btn_cl_shutbtn_cl_reset_svdown_sv.configure(command=self.btn_cl_reset_sv_click)
+        self.btn_cl_reset_sv.configure(command=self.btn_cl_reset_sv_click)
         
     def btn_cl_shutdown_sv_click(self):
         self.controller.server_action(self.client_socket, "SHUTDOWN_SERVER")
