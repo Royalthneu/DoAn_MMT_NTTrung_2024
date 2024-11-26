@@ -32,18 +32,29 @@ class frm_nhap_Ten_view:
     def btn_nhap_Ten_click(self):
         name = self.entry_nhap_Ten.get()
         if name:
-            # Start a new thread to run start_app or start_service
-            threading.Thread(target=self.run_in_background, args=(name,)).start()
+            if self.from_screen == "app_view":
+                threading.Thread(target=self.controller.start_app, args=(self.client_socket, name)).start()
+            elif self.from_screen == "service_view":
+                threading.Thread(target=self.controller.start_service, args=(self.client_socket, name)).start()
+            self.top.destroy()
         else:
-            messagebox.showerror(title="Lỗi Tên", message="Tên không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
+            messagebox.showerror(title="Lỗi PID", message="PID không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
     
-    def run_in_background(self, name):
-        # This method will run in a separate thread
-        if self.from_screen == "app_view":
-            self.controller.start_app(self.client_socket, name)  # Running start_app on the controller
-        elif self.from_screen == "service_view":
-            self.controller.start_service(self.client_socket, name)  # Running start_service on the controller
-        
-        # Once the background task is done, we update the UI in the main thread
-        self.top.after(0, self.top.destroy())  # Schedule the UI update to run in the main thread
+    # def btn_nhap_Ten_click(self):
+    #     name = self.entry_nhap_Ten.get()
+    #     if name:
+    #         # Start a new thread to run start_app or start_service
+    #         threading.Thread(target=self.run_in_background, args=(name,)).start()
+    #     else:
+    #         messagebox.showerror(title="Lỗi Tên", message="Tên không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
+    
+    # def run_in_background(self, name):
+    #     # This method will run in a separate thread
+    #     if self.from_screen == "app_view":
+    #         self.controller.start_app(self.client_socket, name)  # Running start_app on the controller
+    #     elif self.from_screen == "service_view":
+    #         self.controller.start_service(self.client_socket, name)  # Running start_service on the controller
+    #     self.top.destroy()
+    # else:
+    #     messagebox.showerror(title="Lỗi Name", message="PID không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
     

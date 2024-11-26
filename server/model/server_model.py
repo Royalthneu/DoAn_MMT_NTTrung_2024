@@ -65,36 +65,12 @@ class SV_Model:
         """Nhận phản hồi từ server/client"""
         return socket.recv(buffer_size).decode()
     
-    def run_powershell_command(self, command):
-        try:
-            result = subprocess.run(
-                ["powershell", "-Command", command],
-                check=True, capture_output=True, text=True
-            )
-            return result.stdout
-        except subprocess.CalledProcessError as e:
-            return e.stderr
-        
-    def run_powershell_command_admin(self, command):
-        try:
-            result = subprocess.run(
-                ["sc.exe"] + command.split(),
-                check=True,
-                capture_output=True,
-                text=True,
-                shell=True
-            )
-            return result.stdout
-        except subprocess.CalledProcessError as e:
-            return e.stderr
-    
     #1. SV_App_Process:    
     def list_apps_running(self):
         """Lấy danh sách ứng dụng đang chạy từ hệ thống"""
         try:
             # Lấy danh sách ứng dụng đang chạy từ hệ thống
             output = subprocess.check_output("tasklist", encoding='utf-8')  # Ensure UTF-8 encoding
-              # Debugging line
             return output  # Trả lại kết quả cho controller
         except Exception as e:
             return str(e)  # Nếu có lỗi, trả về thông báo lỗi
@@ -121,18 +97,29 @@ class SV_Model:
         for item in treeview.get_children():
             treeview.delete(item)
 
+
+    def run_powershell_command(self, command):
+        try:
+            result = subprocess.run(
+                ["powershell", "-Command", command],
+                check=True, capture_output=True, text=True
+            )
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            return e.stderr
+        
     #2. SV_Services:    
     def list_running_services(self):
         self.command = "Get-WmiObject Win32_Service | Where-Object { $_.State -eq 'Running' } | Select-Object -Property ProcessId, Name"
         return self.run_powershell_command(self.command)
     
     def start_service(self, service_name):
-        self.command = f"start {service_name}"
-        return self.run_powershell_command_admin(self.command)
+        self.command = f"Start-Process sc.exe -ArgumentList 'start', {service_name} -Verb runAs"
+        return self.run_powershell_command(self.command)
     
     def stop_service(self, service_pid):
         self.command = f"taskkill /PID {service_pid} /F"
-        return self.run_powershell_command_admin(self.command)
+        return self.run_powershell_command(self.command)
 
     #3. SV_Shutdown:    
     def shutdown_server():
