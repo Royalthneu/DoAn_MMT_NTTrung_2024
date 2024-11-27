@@ -50,7 +50,7 @@ class root_view:
         self.btn_file_operations.configure(command=self.btn_file_operations_click)
         
         # Vô hiệu hóa các nút ngoại trừ btn_connect
-        # self.toggle_buttons(False)
+        self.toggle_buttons(False)
         
         # Separators
         self.widget_factory.create_separator(0.027, 0.113)
@@ -75,7 +75,7 @@ class root_view:
                 # Thực hiện kết nối nếu IP và Port hợp lệ
                 self.controller.connect_to_server(server_ip, server_port)
                 self.client_socket = self.controller.get_client_socket()
-                # self.toggle_buttons(True)
+                self.toggle_buttons(True)
             except Exception as e:
                 # Xử lý lỗi khi có exception
                 self.show_message(f"Lỗi khi kết nối: {str(e)}")
@@ -93,9 +93,9 @@ class root_view:
         open_wd_client_socket(self.window, self.client_socket, self.controller, shutdown_view)
         
     def btn_view_screen_click(self):
-        # self.window.withdraw()
+        self.window.withdraw()
         self.controller.share_screen_server(self.client_socket)
-        # self.window.deiconify()
+        self.window.deiconify()
 
         server_ip, server_port = self.controller.read_config_server("config.json")
         self.controller.connect_to_server(server_ip, server_port)
