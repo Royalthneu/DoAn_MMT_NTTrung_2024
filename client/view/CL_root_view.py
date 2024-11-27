@@ -18,6 +18,7 @@ class root_view:
         self.window.resizable(0, 0)
         self.window.configure(background="#d9d9d9")        
         self.widget_factory = WidgetFactory(window)
+        
         self.create_widgets()
 
     def create_widgets(self):
@@ -84,7 +85,16 @@ class root_view:
         open_wd_client_socket(self.window, self.client_socket, self.controller, shutdown_view)
         
     def btn_view_screen_click(self):
+        self.window.withdraw()
         self.controller.share_screen_server(self.client_socket)
+        self.window.deiconify()
+        
+        # if self.client_socket:
+        #     self.client_socket.close()
+        #     self.client_socket = None
+        
+        server_ip, server_port = self.controller.read_config_server("config.json")
+        self.controller.connect_to_server(server_ip, server_port)
         
     def btn_keylogger_click(self):
         from view.CL_keylogger_view import keylogger_view
@@ -94,15 +104,6 @@ class root_view:
         from view.CL_del_copy_view import del_copy_view
         open_wd_client_socket(self.window, self.client_socket, self.controller, del_copy_view)  
 
-
-
-    # def update_tree_view(self, app_list):
-    #     self.tree_app.delete(*self.tree_app.get_children())  # Xóa dữ liệu cũ trong TreeView
-    #     if not app_list:  # Nếu danh sách ứng dụng rỗng
-    #         self.show_message("Thông báo", "Không có ứng dụng nào đang chạy.")
-    #         return
-    #     for pid, app_name in app_list:
-    #         self.tree_app.insert("", "end", text=pid, values=(app_name,))
 
         
         

