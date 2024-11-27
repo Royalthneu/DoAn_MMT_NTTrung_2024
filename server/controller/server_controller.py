@@ -1,4 +1,3 @@
-# SV_controller.py
 import threading
 
 class SV_Controller:
@@ -50,6 +49,8 @@ class SV_Controller:
 
     def handle_client(self, client_socket, addr):
         """Xử lý lệnh từ Client"""
+        exception_occurred = False  # Biến cờ để kiểm soát việc hiển thị thông báo
+        
         try:
             while True:
                 command = self.model.receive_response(client_socket)
@@ -157,10 +158,13 @@ class SV_Controller:
                     self.model.send_command(client_socket, "Unknown command.")
 
         except Exception as e:
+            exception_occurred = True  # Đặt cờ nếu xảy ra ngoại lệ
             self.view.show_message(title = "Ngoại lệ", message = f"Error handling client {addr}: {str(e)}")
         finally:
             client_socket.close()
-            self.view.show_message(title = "Thông báo", message = f"Client disconnected: {addr}")
+            # Chỉ hiển thị thông báo nếu không có ngoại lệ
+            if not exception_occurred:
+                self.view.show_message(title = "Thông báo", message = f"Client disconnected: {addr}")
 
     def stop_server(self):
         self.model.close_server()

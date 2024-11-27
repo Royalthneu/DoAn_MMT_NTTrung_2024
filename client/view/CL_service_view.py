@@ -1,4 +1,3 @@
-from tkinter import messagebox
 from model.CL_model import WidgetFactory, ScrolledTreeView, open_wd_client_socket_from
 
 class service_view:

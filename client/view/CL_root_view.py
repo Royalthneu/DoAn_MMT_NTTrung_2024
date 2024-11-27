@@ -3,11 +3,6 @@ from tkinter import messagebox
 from model.CL_model import WidgetFactory
 from model.CL_model import open_wd_client_socket
 
-from view.CL_service_view import service_view
-# from view.CL_del_copy_view import del_copy_view
-# from view.CL_shutdown_view import shutdown_view
-# from view.CL_keylogger_view import keylogger_view
-
 class root_view:
     def __init__(self, window):        
         self.window = window         
@@ -54,9 +49,21 @@ class root_view:
         self.btn_file_operations = self.widget_factory.create_button("6. Xóa files ; Copy files từ SERVER", 0.08, 0.843, 317, 36)
         self.btn_file_operations.configure(command=self.btn_file_operations_click)
         
+        # Vô hiệu hóa các nút ngoại trừ btn_connect
+        # self.toggle_buttons(False)
+        
         # Separators
         self.widget_factory.create_separator(0.027, 0.113)
-        self.widget_factory.create_separator(0.027, 0.34)    
+        self.widget_factory.create_separator(0.027, 0.34)
+    
+    def toggle_buttons(self, state):
+        """Bật hoặc tắt trạng thái các nút (ngoại trừ btn_connect)."""
+        self.btn_applications.configure(state="normal" if state else "disabled")
+        self.btn_services.configure(state="normal" if state else "disabled")
+        self.btn_shutdown_reset.configure(state="normal" if state else "disabled")
+        self.btn_view_screen.configure(state="normal" if state else "disabled")
+        self.btn_keylogger.configure(state="normal" if state else "disabled")
+        self.btn_file_operations.configure(state="normal" if state else "disabled")    
     
     def show_message(self, message):
         messagebox.showinfo("Thông báo", message)
@@ -68,6 +75,7 @@ class root_view:
                 # Thực hiện kết nối nếu IP và Port hợp lệ
                 self.controller.connect_to_server(server_ip, server_port)
                 self.client_socket = self.controller.get_client_socket()
+                # self.toggle_buttons(True)
             except Exception as e:
                 # Xử lý lỗi khi có exception
                 self.show_message(f"Lỗi khi kết nối: {str(e)}")
@@ -85,14 +93,10 @@ class root_view:
         open_wd_client_socket(self.window, self.client_socket, self.controller, shutdown_view)
         
     def btn_view_screen_click(self):
-        self.window.withdraw()
+        # self.window.withdraw()
         self.controller.share_screen_server(self.client_socket)
-        self.window.deiconify()
-        
-        # if self.client_socket:
-        #     self.client_socket.close()
-        #     self.client_socket = None
-        
+        # self.window.deiconify()
+
         server_ip, server_port = self.controller.read_config_server("config.json")
         self.controller.connect_to_server(server_ip, server_port)
         

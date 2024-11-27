@@ -1,4 +1,3 @@
-# main.py
 import socket
 import tkinter as tk
 

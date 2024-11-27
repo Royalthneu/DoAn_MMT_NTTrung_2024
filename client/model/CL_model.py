@@ -1,5 +1,4 @@
 import json
-import os
 import socket
 import subprocess
 from tkinter import messagebox, ttk
@@ -297,7 +296,7 @@ def open_wd_client_socket_from(root, client_socket, controller, window_class, fr
     # Khởi tạo cửa sổ từ lớp window_class
     window_class (top=top, client_socket=client_socket, controller=controller, from_screen=from_screen)
     # Đảm bảo rằng cửa sổ chính không thể click khi cửa sổ top đang mở
-    top.grab_set()    
+    # top.grab_set()    
     # Khi cửa sổ top đóng, hủy grab_set
     top.protocol("WM_DELETE_WINDOW", lambda: (top.grab_release(), top.destroy()))
     
@@ -307,7 +306,7 @@ def open_wd_client_socket(root, client_socket, controller, window_class):
     # Khởi tạo cửa sổ từ lớp window_class
     window_class (top=top, client_socket=client_socket, controller=controller)
     # Đảm bảo rằng cửa sổ chính không thể click khi cửa sổ top đang mở
-    top.grab_set()    
+    # top.grab_set()    
     # Khi cửa sổ top đóng, hủy grab_set
     top.protocol("WM_DELETE_WINDOW", lambda: (top.grab_release(), top.destroy()))
     

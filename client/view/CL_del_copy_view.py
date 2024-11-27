@@ -1,4 +1,3 @@
-import os
 from model.CL_model import WidgetFactory
 from tkinter import filedialog, ttk, messagebox
 import tkinter as tk
