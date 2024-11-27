@@ -147,7 +147,7 @@ class SV_Model:
         except Exception as e:
             return f"Khong the reset server: {e}"
 
-    #4. SV_ScreenShare:    
+    # ---------------- 4. SV_ScreenShare: ----------------------  
     def start_screen_sharing(self, client_ip, client_port):
         # Tạo đối tượng client chia sẻ màn hình và bắt đầu stream
         client_ip, client_port = self.read_config_client("sv_config.json")
@@ -161,6 +161,8 @@ class SV_Model:
             self.client_view_stream.stop_stream()
             return "Screen sharing stopped."
         return "No screen sharing to stop."
+    
+  
     
     # Hàm kiểm tra sự tồn tại của file cấu hình
     def check_config_file(self, CONFIG_FILE):
@@ -244,26 +246,18 @@ class SV_Model:
         listener.start()
 
         return listener
-
     
     def stop_keylogger(listener):
         listener.stop()
         return "KEYLOGGER_STOPPED"
-    #6. SV_Del_Copy:
-    
-    def delete_file(client_socket, file_path):
-    # Xóa file tại đường dẫn được chỉ định trên server.
+   
+    # ---------------- 6. Del_Delete File: ----------------------    
+    def validate_file(self, file_path):
         if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-                return f"Xoa file thanh cong."
-            except Exception as e:
-                return f"Loi: xoa file: {e}"
-        else:
-            return f"File khong ton tai tren may Server."  
-        
+            return "SUCCESS|File exist."
+        return "ERROR|File does not exist."
     
-    def copy_file(client_socket, file_path):
+    def copy_file(self, client_socket, file_path):
         #Sao chép file tại đường dẫn được chỉ định trên server và gửi tới client.
         if os.path.exists(file_path):        
             # Lấy kích thước file
@@ -274,11 +268,21 @@ class SV_Model:
             
             # Gửi file tới client
             with open(file_path, 'rb') as f:
-                while (chunk := f.read(65535)):
+                while (chunk := f.read(4096)):
                     client_socket.sendall(chunk)
         else:
             # Nếu file không tồn tại, gửi kích thước 0 để báo lỗi
             client_socket.sendall((0).to_bytes(4, byteorder='big'))
+
+    def delete_file(self, file_path):
+        if not os.path.exists(file_path):
+            return "ERROR|File does not exist."
+        try:
+            os.remove(file_path)
+            return "SUCCESS|File deleted successfully."
+        except Exception as e:
+            return f"ERROR|{str(e)}"
+
             
 
 

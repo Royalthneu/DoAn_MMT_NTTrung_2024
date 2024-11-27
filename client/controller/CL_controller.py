@@ -1,6 +1,7 @@
+import os
 import socket
 import threading
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 import keyboard
 from vidstream import StreamingServer
 
@@ -156,8 +157,6 @@ class cl_controller:
             messagebox.showinfo("Phản hồi", response)
         else:
             messagebox.showinfo("Thông báo", f"Không {action_text.capitalize()}.")
-
-    
     
     #----------4. SHARE_SCREEN -------------------------
     def share_screen_server(self, client_socket):
@@ -183,3 +182,47 @@ class cl_controller:
     #     if client_ip and client_port:
     #         config_message = f"Client IP: {client_ip}\nClient Port: {client_port}"
     #         messagebox.showinfo(title="Thông tin", message=config_message)
+    
+    
+    #-----------------------6. DEL & COPY FILE --------------------------
+    def get_files_from_server(self, client_socket, file_path, destination_path): 
+        # Tạo tên file dựa trên đường dẫn từ server
+        filename = os.path.basename(file_path)
+        destination_path = os.path.join(destination_path, filename)            
+        # Gửi yêu cầu copy file đến server với đường dẫn file đầy đủ
+        self.model.send_command(client_socket, f"COPY_FILE {file_path}")
+        # Nhận kích thước file
+        file_size = int.from_bytes(client_socket.recv(4), byteorder='big')   
+        
+        if file_size == 0:
+            # Nếu file co kich thuoc = 0 byte thi tạo một file rong
+            with open(destination_path, 'wb') as f:
+                pass # Tạo file rỗng
+            # messagebox.showwarning(title="Dung luong file copy = 0", message=f"Tu dong tao file trong Folder {destination_path}.")
+        else:
+            # Nếu file có kích thước, sao chép dữ liệu xuống client
+            with open(destination_path, 'wb') as f:
+                data_received = 0
+                while data_received < file_size:
+                    packet = client_socket.recv(4096)
+                    if not packet:
+                        break
+                    f.write(packet)
+                    data_received += len(packet)
+            # messagebox.showinfo(title="Kết quả", message=f"Da copy file {filename} tu server den Folder {destination_path} cua Client.") 
+
+    def validate_file_on_server(self, client_socket, file_path):      
+        self.model.send_command(client_socket, f"VALIDATE_FILE {file_path}")
+        response = self.model.receive_response(client_socket)
+        if "SUCCESS" in response:
+            return True
+        else:
+            return False
+
+    def delete_file_on_server(self, client_socket, file_path):       
+        self.model.send_command(client_socket, f"DELETE_FILE {file_path}")
+        response = self.model.receive_response(client_socket)
+        if "SUCCESS" in response:
+            return True
+        else:
+            return False

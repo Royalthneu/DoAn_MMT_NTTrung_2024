@@ -83,7 +83,7 @@ class SV_Controller:
                     self.model.send_command(client_socket, result)
 
                 elif command.startswith("STOP_SERVICE_BY_PID"):
-                    service_pid = command.split(" ", 1)[1]
+                    service_pid = int(command.split(" ", 1)[1])
                     result = self.model.stop_service_by_pid(service_pid)
                     self.model.send_command(client_socket, result)
                 
@@ -132,30 +132,19 @@ class SV_Controller:
                             break
 
                 #6. Del va Copy
+                if command.startswith("COPY_FILE"):
+                    file_path = command.split(" ", 1)[1]
+                    self.model.copy_file(client_socket, file_path)
+
+                elif command.startswith("VALIDATE_FILE"):
+                    file_path = command.split(" ", 1)[1]
+                    response = self.model.validate_file(file_path)
+                    self.model.send_command(client_socket, response)
+
                 elif command.startswith("DELETE_FILE"):
-                    # Lấy đường dẫn file từ lệnh
                     file_path = command.split(" ", 1)[1]
-                    # Gọi hàm delete_file trong model
-                    result = self.model.delete_file(file_path)
-                    # Gửi kết quả về client
-                    self.model.send_command(client_socket, result)
-
-                elif command.startswith("COPY_FILE"):
-                    # Lấy đường dẫn file từ lệnh
-                    file_path = command.split(" ", 1)[1]
-                    file_size, message = self.model.copy_file(file_path)  # Gọi hàm copy_file trong model
-
-                    if file_size is not None:
-                        # Gửi kích thước file đến client
-                        client_socket.sendall(
-                            file_size.to_bytes(4, byteorder='big'))
-                        # Gửi nội dung file tới client
-                        with open(file_path, 'rb') as f:
-                            while (chunk := f.read(65535)):
-                                client_socket.sendall(chunk)
-                    else:
-                        # Gửi lỗi nếu file không tồn tại
-                        self.model.send_command(client_socket, message)
+                    response = self.model.delete_file(file_path)                    
+                    self.model.send_command(client_socket, response)
 
                 else:
                     self.model.send_command(client_socket, "Unknown command.")

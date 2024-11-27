@@ -39,25 +39,6 @@ class frm_nhap_Ten_view:
             elif self.from_screen == "service_view_btn_stop":
                 threading.Thread(target=self.controller.stop_service_by_name, args=(self.client_socket, name)).start()
             self.top.destroy()
-            self.top.destroy()
         else:
             messagebox.showerror(title="Lỗi PID", message="PID không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
-    
-    # def btn_nhap_Ten_click(self):
-    #     name = self.entry_nhap_Ten.get()
-    #     if name:
-    #         # Start a new thread to run start_app or start_service
-    #         threading.Thread(target=self.run_in_background, args=(name,)).start()
-    #     else:
-    #         messagebox.showerror(title="Lỗi Tên", message="Tên không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
-    
-    # def run_in_background(self, name):
-    #     # This method will run in a separate thread
-    #     if self.from_screen == "app_view":
-    #         self.controller.start_app(self.client_socket, name)  # Running start_app on the controller
-    #     elif self.from_screen == "service_view":
-    #         self.controller.start_service(self.client_socket, name)  # Running start_service on the controller
-    #     self.top.destroy()
-    # else:
-    #     messagebox.showerror(title="Lỗi Name", message="PID không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")
     

@@ -47,11 +47,12 @@ class root_view:
         self.btn_view_screen = self.widget_factory.create_button("4. Xem màn hình hiện thời của máy SERVER", 0.08, 0.654, 317, 36)
         self.btn_view_screen.configure(command=self.btn_view_screen_click)
         
-        self.btn_keylogger = self.widget_factory.create_button("5. Khóa / Bật phím (keylogger)", 0.08, 0.749, 317, 36)
-        
+        self.btn_keylogger = self.widget_factory.create_button("5. Khóa / Bật phím (keylogger)", 0.08, 0.749, 317, 36)        
+        self.btn_keylogger.configure(command=self.btn_keylogger_click)
         
         self.btn_file_operations = self.widget_factory.create_button("6. Xóa files ; Copy files từ SERVER", 0.08, 0.843, 317, 36)
-
+        self.btn_file_operations.configure(command=self.btn_file_operations_click)
+        
         # Separators
         self.widget_factory.create_separator(0.027, 0.113)
         self.widget_factory.create_separator(0.027, 0.34)    
@@ -85,19 +86,23 @@ class root_view:
     def btn_view_screen_click(self):
         self.controller.share_screen_server(self.client_socket)
         
-    # def btn_keylogger_click(self):
-    #     self.open_window(app_view)
+    def btn_keylogger_click(self):
+        from view.CL_keylogger_view import keylogger_view
+        open_wd_client_socket(self.window, self.client_socket, self.controller, keylogger_view)
         
-    # def btn_file_operations_click(self):
-    #     self.open_window(app_view)    
+    def btn_file_operations_click(self):
+        from view.CL_del_copy_view import del_copy_view
+        open_wd_client_socket(self.window, self.client_socket, self.controller, del_copy_view)  
 
-    def update_tree_view(self, app_list):
-        self.tree_app.delete(*self.tree_app.get_children())  # Xóa dữ liệu cũ trong TreeView
-        if not app_list:  # Nếu danh sách ứng dụng rỗng
-            self.show_message("Thông báo", "Không có ứng dụng nào đang chạy.")
-            return
-        for pid, app_name in app_list:
-            self.tree_app.insert("", "end", text=pid, values=(app_name,))
+
+
+    # def update_tree_view(self, app_list):
+    #     self.tree_app.delete(*self.tree_app.get_children())  # Xóa dữ liệu cũ trong TreeView
+    #     if not app_list:  # Nếu danh sách ứng dụng rỗng
+    #         self.show_message("Thông báo", "Không có ứng dụng nào đang chạy.")
+    #         return
+    #     for pid, app_name in app_list:
+    #         self.tree_app.insert("", "end", text=pid, values=(app_name,))
 
         
         
