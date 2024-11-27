@@ -82,9 +82,14 @@ class SV_Controller:
                     result = self.model.start_service(service_name)
                     self.model.send_command(client_socket, result)
 
-                elif command.startswith("STOP_SERVICE"):
+                elif command.startswith("STOP_SERVICE_BY_PID"):
+                    service_pid = command.split(" ", 1)[1]
+                    result = self.model.stop_service_by_pid(service_pid)
+                    self.model.send_command(client_socket, result)
+                
+                elif command.startswith("STOP_SERVICE_BY_NAME"):
                     service_name = command.split(" ", 1)[1]
-                    result = self.model.stop_service(service_name)
+                    result = self.model.stop_service_by_name(service_name)
                     self.model.send_command(client_socket, result)
                     
                 elif command == "CLEAR_LIST_SERVICES":

@@ -34,8 +34,11 @@ class frm_nhap_Ten_view:
         if name:
             if self.from_screen == "app_view":
                 threading.Thread(target=self.controller.start_app, args=(self.client_socket, name)).start()
-            elif self.from_screen == "service_view":
+            elif self.from_screen == "service_view_btn_start":
                 threading.Thread(target=self.controller.start_service, args=(self.client_socket, name)).start()
+            elif self.from_screen == "service_view_btn_stop":
+                threading.Thread(target=self.controller.stop_service_by_name, args=(self.client_socket, name)).start()
+            self.top.destroy()
             self.top.destroy()
         else:
             messagebox.showerror(title="Lỗi PID", message="PID không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")

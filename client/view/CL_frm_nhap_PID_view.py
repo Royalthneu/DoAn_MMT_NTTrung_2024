@@ -35,7 +35,7 @@ class frm_nhap_PID_view:
             if self.from_screen == "app_view":
                 threading.Thread(target=self.controller.stop_app, args=(self.client_socket, pid)).start()
             elif self.from_screen == "service_view":
-                threading.Thread(target=self.controller.stop_service, args=(self.client_socket, pid)).start()
+                threading.Thread(target=self.controller.stop_service_by_pid, args=(self.client_socket, pid)).start()
             self.top.destroy()
         else:
             messagebox.showerror(title="Lỗi PID", message="PID không hợp lệ hoặc không tồn tại! Vui lòng nhập lại.")

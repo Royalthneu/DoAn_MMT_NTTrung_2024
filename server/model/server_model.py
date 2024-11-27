@@ -119,13 +119,17 @@ class SV_Model:
         self.command = f"Start-Process sc.exe -ArgumentList 'start', {service_name} -Verb runAs"
         return self.run_powershell_command(self.command)
     
-    def stop_service(self, pid):
+    def stop_service_by_pid(self, pid):
         """Dừng dịch vụ theo PID"""
         try:
             subprocess.run(["taskkill", "/F", "/PID", str(pid)], check=True)
             return f"Stopped service with PID {pid}."
         except Exception as e:
             return f"Error stopping service with PID {pid}: {str(e)}" 
+        
+    def stop_service_by_name(self, service_name):
+        self.command = f"Start-Process sc.exe -ArgumentList 'stop', {service_name} -Verb runAs"
+        return self.run_powershell_command(self.command)
 
 
     #---------------3. SV_Shutdown: --------------------------  

@@ -125,10 +125,15 @@ class cl_controller:
         response = self.model.receive_response(client_socket)
         return response
 
-    def stop_service(self, client_socket, service_pid):
-        self.model.send_command(client_socket, f"STOP_SERVICE {service_pid}")
+    def stop_service_by_pid(self, client_socket, service_pid):
+        self.model.send_command(client_socket, f"STOP_SERVICE_BY_PID {service_pid}")
         response = self.model.receive_response(client_socket)
-        return response        
+        return response  
+    
+    def stop_service_by_name(self, client_socket, service_name):
+        self.model.send_command(client_socket, f"STOP_SERVICE_BY_NAME {service_name}")
+        response = self.model.receive_response(client_socket)
+        return response       
     
     #----------3. SHUTDOWN & RESET -------------------------
     def server_action(self, client_socket, action):
