@@ -21,9 +21,9 @@ ________________________________________________________________________________
   
         https://www.python.org/downloads/windows/
     
-  + Cài đặt thư viện thêm các **thư viện cho python**: vidstream, pynput, keyboard **bằng cmd**:
+  + Cài đặt thư viện thêm các **thư viện cho python**: vidstream, pynput, keyboard, pillow **bằng cmd**:
         
-        pip install vidstream pynput keyboard
+        pip install vidstream pynput keyboard pillow
     
 - Cài đặt **git bash**:
   + Đường link file cài đặt git bash:
