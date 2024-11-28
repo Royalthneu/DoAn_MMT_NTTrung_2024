@@ -6,7 +6,7 @@
 
 Đã hoàn thành tất cả các chức năng:
 
-**    1.	List / Start / Stop các Applications đang chạy SERVER
+  **1.	List / Start / Stop các Applications đang chạy SERVER
     2.	List / Start / Stop Services (Processes) đang chạy SERVER
     3.	Shutdown / Reset máy SERVER
     4.	Xem màn hình hiện thời của máy SERVER
