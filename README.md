@@ -34,13 +34,13 @@ ________________________________________________________________________________
         
         git clone https://github.com/Royalthneu/DoAn_MMT_NTTrung_2024.git   
 
-- Trên máy ảo với vai trò máy server, chạy file **server.py**: 
-  + Truy cập folder server trên máy ảo vừa clone về và chạy file server.py **bằng cmd**:
+- Trên máy ảo (trình server), khởi chạy file **server.py**: 
+  + Truy cập folder client vừa clone về khởi chạy  **bằng cmd**:
          
          python server.py
   
-- Trên máy thật với vai trò máy client, chạy file **client.py**:
-  + Trên máy ảo, Truy cập folder client trên máy thật vừa clone về và chạy file client.py **bằng cmd**:
+- Trên máy thật (trình client), khởi chạy file **client.py**:
+  + Truy cập folder client vừa clone về khởi chạy **bằng cmd**:
          
          python client.py
 
