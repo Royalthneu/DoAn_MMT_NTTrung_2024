@@ -14,7 +14,7 @@
    6.	Xóa files ; Copy files từ máy SERVER
 
 _________________________________________________________________________________________
-*Hướng dẫn cài đặt ứng dụng trên máy thật và máy ảo:
+*Hướng dẫn cài đặt chương trình và các thư viện trên máy thật và máy ảo:
     
 - Cài đặt **python 3.12.7 trở xuống**:
   + Đường link file cài đặt python:
