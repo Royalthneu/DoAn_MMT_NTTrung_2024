@@ -17,7 +17,7 @@ ________________________________________________________________________________
 - Cài đặt python 3.12.7 trở xuống:
   + Đường link file cài đặt python
   
-        3.12.7: https://www.python.org/downloads/windows/
+        https://www.python.org/downloads/windows/
     
   + Cài đặt thư viện thêm các thư viện cho python: vidstream, pynput ,keyboard bằng câu lệnh cmd:
         
