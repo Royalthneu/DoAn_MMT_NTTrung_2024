@@ -1,4 +1,5 @@
 import threading
+from tkinter import messagebox
 
 class SV_Controller:
     def __init__(self, model, view):
@@ -7,6 +8,7 @@ class SV_Controller:
         self.client_socket = None
         self.client_ip = None
         self.client_port = None
+        
         self.view.btn_open.config(command=self.start_server)
         self.view.btn_close.config(command=self.stop_server)
 
@@ -29,7 +31,7 @@ class SV_Controller:
             while True:
                 self.client_socket, self.addr = self.model.accept_client()
                 if self.client_socket:
-                    print(f"Client connected from {self.addr}")
+                    self.view.show_message("Thông báo", f"Client connected from {self.addr}")
                     self.client_ip, self.client_port = self.addr
                     self.model.update_config_server("sv_config.json", self.model.server_ip, self.model.server_port, self.client_ip, 6789)
                     client_thread = threading.Thread(
@@ -38,7 +40,7 @@ class SV_Controller:
                 else:
                     break  # Nếu không có client kết nối, thoát khỏi vòng lặp
         except Exception as e:
-            print(f"Error: {e}")
+            self.view.show_message("Lỗi", f"Error: {e}")
             self.view.enable_open_button()
             self.view.disable_close_button()
         finally:

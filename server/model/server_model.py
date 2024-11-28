@@ -3,6 +3,7 @@ import os
 import socket
 import subprocess
 import threading
+from tkinter import messagebox
 from pynput import keyboard
 from vidstream import ScreenShareClient
 
@@ -20,10 +21,10 @@ class SV_Model:
             self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server_socket.bind((self.server_ip, self.server_port))
             self.server_socket.listen(3)
-            print(f"Server is listening on: {self.server_ip}:{self.server_port}")
+            print(f"Server is listening on: {self.server_ip}:{self.server_port}")  #Để debugging
             return True
         except Exception as e:
-            print(f"Error while starting server: {e}")
+            print(f"Error while starting server: {e}") #Để debugging
             return False
 
     def accept_client(self):
@@ -31,13 +32,13 @@ class SV_Model:
             self.client_socket, addr = self.server_socket.accept()
             return self.client_socket, addr
         except Exception as e:
-            print(f"Error while accepting client: {e}")
+            print(f"Error while accepting client: {e}") #Để debugging
             return None, None
 
     def close_server(self):
         if self.server_socket:
             self.server_socket.close()  # Đóng socket của server
-            print("Server stopped.")
+            print("Server stopped.") #Để debugging
         self.server_socket = None  # Đảm bảo server_socket không còn giá trị sau khi dừng
         
     ##Class cho network
@@ -61,8 +62,19 @@ class SV_Model:
         socket.sendall(command.encode('utf-8'))
     
     def receive_response(self, socket, buffer_size=65535):
-        """Nhận phản hồi từ server/client"""
+        # self.clear_socket_buffer(socket) # xóa buffer cũ
+        """Nhận phản hồi từ client"""
         return socket.recv(buffer_size).decode()
+    
+    # def clear_socket_buffer(self, socket):
+    #     try:
+    #         socket.setblocking(False)  # Tạm thời chuyển socket về non-blocking
+    #         while True:
+    #             _ = socket.recv(1024)  # Đọc và bỏ qua dữ liệu cũ trong buffer
+    #     except BlockingIOError:
+    #         pass  # Không còn dữ liệu trong buffer
+    #     finally:
+    #         socket.setblocking(True)  # Chuyển socket về blocking mode
     
     #1. SV_App_Process:    
     def list_apps_running(self):
@@ -184,9 +196,10 @@ class SV_Model:
                 config["client_port"] = client_port            
             with open(CONFIG_FILE, "w") as file:
                 json.dump(config, file, indent=4)
-            print(f"Configuration updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
+            # messagebox.showinfo("Cập nhật file cấu hình IP PORT", f"Cập nhật sv_config.json: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
+            print(f"Cập nhật sv_config.json: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}") #Debugging
         else:
-            print("Configuration file does not exist.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "File sv_config.json không tồn tại.")
 
     # Hàm đọc cấu hình server từ file
     def read_config_server(self, CONFIG_FILE):
@@ -195,10 +208,10 @@ class SV_Model:
                 config = json.load(file)
             return config.get("server_ip"), config.get("server_port")
         except json.JSONDecodeError:
-            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "sv_config.json không hợp lệ. Vui lòng kiểm tra nội dung file.")
             return None, None
         except FileNotFoundError:
-            print("File cấu hình không tồn tại.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "sv_config.json không tồn tại.")
             return None, None
         
     def read_config_client(self, CONFIG_FILE):
@@ -207,10 +220,10 @@ class SV_Model:
                 config = json.load(file)
             return config.get("client_ip"), config.get("client_port")
         except json.JSONDecodeError:
-            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "sv_config.json không hợp lệ. Vui lòng kiểm tra nội dung file.")
             return None, None
         except FileNotFoundError:
-            print("File cấu hình không tồn tại.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "sv_config.json không tồn tại.")
             return None, None
 
     #---------------5. SV_Keylogger: ------------------   
@@ -259,8 +272,8 @@ class SV_Model:
     # ---------------- 6. Del_Delete File: ----------------------    
     def validate_file(self, file_path):
         if os.path.exists(file_path):
-            return "SUCCESS|File exist."
-        return "ERROR|File does not exist."
+            return "TONTAI"
+        return "KHONGTONTAI"
     
     def copy_file(self, client_socket, file_path):
         #Sao chép file tại đường dẫn được chỉ định trên server và gửi tới client.

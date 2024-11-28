@@ -87,23 +87,24 @@ class cl_controller:
     def _list_apps_thread(self, client_socket, update_callback):
         try:
             self.model.send_command(client_socket, "LIST_APPS_RUNNING")
-            response = self.model.receive_response_utf8(client_socket)
+            time.sleep(0.1)
+            response = self.model.receive_response_utf8_list(client_socket) # Có xóa buffer cũ 
             app_list = self.model.parse_app_list(response)
             update_callback(app_list)
         except Exception as e:
-            print(f"Lỗi trong thread list_apps: {e}")
+            messagebox.showerror("List applicatons error", f"Lỗi: {e}")
             # Gọi callback với danh sách rỗng khi có lỗi
             update_callback([])
         
     def start_app(self, client_socket, app_name):
         self.model.send_command(client_socket, f"START_APP_BY_NAME {app_name}")
-        response = self.model.receive_response(client_socket)
-        return response
+        # response = self.model.receive_response(client_socket)
+        # return response
 
     def stop_app(self, client_socket, app_pid):
         self.model.send_command(client_socket, f"STOP_APP_BY_PID {app_pid}")
-        response = self.model.receive_response(client_socket)
-        return response   
+        # response = self.model.receive_response(client_socket)
+        # return response   
     
     #----------2. SERVICE PROCESS ---------------------------
     def list_services(self, client_socket, update_callback):
@@ -116,28 +117,29 @@ class cl_controller:
     def _list_services_thread(self, client_socket, update_callback):
         try:
             self.model.send_command(client_socket, "LIST_SERVICES_RUNNING")
-            response = self.model.receive_response_utf8(client_socket)
+            time.sleep(0.1)
+            response = self.model.receive_response_utf8_list(client_socket) # Có xóa buffer cũ 
             services_list = self.model.parse_service_list(response)
             update_callback(services_list)
         except Exception as e:
-            print(f"Lỗi trong thread services_list: {e}")
+            messagebox.showerror("List servicess error", f"Lỗi trong thread services_list: {e}")
             # Gọi callback với danh sách rỗng khi có lỗi
             update_callback([])
         
     def start_service(self, client_socket, service_name):
         self.model.send_command(client_socket, f"START_SERVICE {service_name}")
-        response = self.model.receive_response(client_socket)
-        return response
+        # response = self.model.receive_response(client_socket)
+        # return response
 
     def stop_service_by_pid(self, client_socket, service_pid):
         self.model.send_command(client_socket, f"STOP_SERVICE_BY_PID {service_pid}")
-        response = self.model.receive_response(client_socket)
-        return response  
+        # response = self.model.receive_response(client_socket)
+        # return response  
     
     def stop_service_by_name(self, client_socket, service_name):
         self.model.send_command(client_socket, f"STOP_SERVICE_BY_NAME {service_name}")
-        response = self.model.receive_response(client_socket)
-        return response       
+        # response = self.model.receive_response(client_socket)
+        # return response       
     
     #----------3. SHUTDOWN & RESET -------------------------
     def server_action(self, client_socket, action):
@@ -153,8 +155,7 @@ class cl_controller:
         confirmation = messagebox.askyesno("Xác nhận", f"Bạn có muốn {action_text} không?")
         if confirmation:
             # Gửi lệnh đến server qua socket
-            self.model.send_command(client_socket, action)
-            
+            self.model.send_command(client_socket, action)            
             # Nhận phản hồi từ server và hiển thị
             response = self.model.receive_response(client_socket)
             messagebox.showinfo("Phản hồi", response)
@@ -166,16 +167,13 @@ class cl_controller:
         client_ip, client_port = self.model.read_config_client("cl_config.json")
         if not client_ip or not client_port:
             messagebox.showinfo(title="Thông tin", message="Không thể đọc cấu hình.")
-            return
-        
+            return        
         self.model.send_command(client_socket, "START_SCREEN_SHARING")
         server = StreamingServer(client_ip, client_port)
         server.start_server()  
-        messagebox.showinfo(title="Thông tin", message="Bắt đầu chia sẻ màn hình")
-        
+        messagebox.showinfo(title="Thông tin", message="Bắt đầu chia sẻ màn hình")        
         # Theo dõi phím ESC để dừng chia sẻ màn hình
         keyboard.wait('esc')  # Chờ đến khi phím ESC được nhấn
-
         # Khi dừng chia sẻ màn hình
         server.stop_server()
         self.view.show_message("Đã dừng chia sẻ màn hình.")       
@@ -219,7 +217,6 @@ class cl_controller:
             # Nếu file co kich thuoc = 0 byte thi tạo một file rong
             with open(destination_path, 'wb') as f:
                 pass # Tạo file rỗng
-            # messagebox.showwarning(title="Dung luong file copy = 0", message=f"Tu dong tao file trong Folder {destination_path}.")
         else:
             # Nếu file có kích thước, sao chép dữ liệu xuống client
             with open(destination_path, 'wb') as f:
@@ -235,18 +232,16 @@ class cl_controller:
     def validate_file_on_server(self, client_socket, file_path):      
         self.model.send_command(client_socket, f"VALIDATE_FILE {file_path}")
         response = self.model.receive_response(client_socket)
-        if "SUCCESS" in response:
+        if response == "TONTAI":
             return True
-        else:
-            return False
+        return False
 
     def delete_file_on_server(self, client_socket, file_path):       
         self.model.send_command(client_socket, f"DELETE_FILE {file_path}")
         response = self.model.receive_response(client_socket)
-        if "SUCCESS" in response:
+        if response == "KHONGTONTAI":
             return True
-        else:
-            return False
+        return False
         
     def read_config_server(self, CONFIG_FILE):
         try:
@@ -254,8 +249,8 @@ class cl_controller:
                 config = json.load(file)
             return config.get("server_ip"), config.get("server_port")
         except json.JSONDecodeError:
-            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            print("cl_config không hợp lệ. Vui lòng kiểm tra nội dung file.")
             return None, None
         except FileNotFoundError:
-            print("File cấu hình không tồn tại.")
+            print("cl_config không tồn tại.")
             return None, None 

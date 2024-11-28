@@ -33,23 +33,42 @@ class cl_model:
     def send_command(self, client_socket, command):
         client_socket.sendall(command.encode())  # Mã hóa lệnh và gửi
         
-    def send_command_recieve_keylogger(self, command):
-        try:
-            self.client_socket.sendall(command.encode())
-            if command in ["STOP_KEYLOGGER", "FETCH_KEYLOGGER"]:
-                data = self.client_socket.recv(65535).decode()
-                return data.split(" ") if data else []
-            return []
-        except Exception as e:
-            print(f"Error sending command: {e}")
-            return []
+    # def send_command_recieve_keylogger(self, command):
+    #     try:
+    #         self.client_socket.sendall(command.encode())
+    #         if command in ["STOP_KEYLOGGER", "FETCH_KEYLOGGER"]:
+    #             data = self.client_socket.recv(65535).decode()
+    #             return data.split(" ") if data else []
+    #         return []
+    #     except Exception as e:
+    #         print(f"Error sending command: {e}")
+    #         return []
 
+    def receive_response_list(self, client_socket, buffer_size=65535):
+        self.clear_socket_buffer(client_socket) # Có xóa buffer cũ 
+        return client_socket.recv(buffer_size).decode() # Nhận và giải mã phản hồi        
+    
+    def receive_response_utf8_list(self, client_socket, buffer_size=65535):
+        self.clear_socket_buffer(client_socket)  # Có xóa buffer cũ 
+        return client_socket.recv(buffer_size).decode("utf-8")  # Nhận và giải mã phản hồi
+    
     def receive_response(self, client_socket, buffer_size=65535):
-        return client_socket.recv(buffer_size).decode() # Nhận và giải mã phản hồi
-        
+        return client_socket.recv(buffer_size).decode() # Nhận và giải mã phản hồi        
     
     def receive_response_utf8(self, client_socket, buffer_size=65535):
         return client_socket.recv(buffer_size).decode("utf-8")  # Nhận và giải mã phản hồi
+    
+    
+    def clear_socket_buffer(self, client_socket):
+        try:
+            client_socket.setblocking(False)  # Tạm thời chuyển socket về non-blocking
+            while True:
+                _ = client_socket.recv(1024)  # Đọc và bỏ qua dữ liệu cũ trong buffer
+        except BlockingIOError:
+            pass  # Không còn dữ liệu trong buffer
+        finally:
+            client_socket.setblocking(True)  # Chuyển socket về blocking mode
+
     
     def show_message(self, message):
         messagebox.showinfo("Thông báo", message)
@@ -126,9 +145,10 @@ class cl_model:
                 config["client_port"] = client_port            
             with open(CONFIG_FILE, "w") as file:
                 json.dump(config, file, indent=4)
-            print(f"Configuration updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
+            # messagebox.showinfo("Cập nhât", f"cl_config.json updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}")
+            print("Cập nhât", f"cl_config.json updated: Server IP = {config['server_ip']}, Server Port = {config['server_port']}, Client IP = {config['client_ip']}, Client Port = {config['client_port']}") #Debugging
         else:
-            print("Configuration file does not exist.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", f"cl_config.json không tồn tại.")
 
     # Hàm đọc cấu hình client từ file
     def read_config_client(self, CONFIG_FILE):
@@ -137,10 +157,10 @@ class cl_model:
                 config = json.load(file)
             return config.get("client_ip"), config.get("client_port")
         except json.JSONDecodeError:
-            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "cl_config.json không hợp lệ. Vui lòng kiểm tra nội dung file.")
             return None, None
         except FileNotFoundError:
-            print("File cấu hình không tồn tại.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "cl_config.json không tồn tại.")
             return None, None    
         
     def read_config_server(self, CONFIG_FILE):
@@ -149,10 +169,10 @@ class cl_model:
                 config = json.load(file)
             return config.get("server_ip"), config.get("server_port")
         except json.JSONDecodeError:
-            print("File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "File cấu hình không hợp lệ. Vui lòng kiểm tra nội dung file.")
             return None, None
         except FileNotFoundError:
-            print("File cấu hình không tồn tại.")
+            messagebox.showerror("Lỗi file cấu hình IP PORT", "File cấu hình không tồn tại.")
             return None, None 
     
             

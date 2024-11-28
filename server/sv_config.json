@@ -1,6 +1,6 @@
 {
-    "server_ip": "192.168.1.115",
+    "server_ip": "192.168.214.45",
     "server_port": 8081,
-    "client_ip": "192.168.1.115",
+    "client_ip": "192.168.214.45",
     "client_port": 6789
 }
