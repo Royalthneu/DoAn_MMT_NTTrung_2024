@@ -2,16 +2,16 @@
 
 Đồ án Điều khiển máy tính từ xa - Nhóm 27, lớp Mạng Máy Tính, học kỳ 1 Năm học 2024-2025
 
-    Thành viên: Nguyễn Thế Trung - MSSV: 23880092 - Đóng góp: 100%
+    **Thành viên: Nguyễn Thế Trung - MSSV: 23880092 - Đóng góp: 100%**
 
 Đã hoàn thành tất cả các chức năng:
 
-    1.	List / Start / Stop các Applications đang chạy SERVER
+**    1.	List / Start / Stop các Applications đang chạy SERVER
     2.	List / Start / Stop Services (Processes) đang chạy SERVER
     3.	Shutdown / Reset máy SERVER
     4.	Xem màn hình hiện thời của máy SERVER
     5.	Khóa / Bắt phím nhấn (keylogger) ở máy SERVER
-    6.	Xóa files ; Copy files từ máy SERVER
+    6.	Xóa files ; Copy files từ máy SERVER**
 
 _________________________________________________________________________________________
 *Hướng dẫn cài đặt ứng dụng trên máy thật và máy ảo:
