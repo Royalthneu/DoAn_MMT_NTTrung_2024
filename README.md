@@ -21,7 +21,7 @@ ________________________________________________________________________________
   
         https://www.python.org/downloads/windows/
     
-  + Cài đặt thư viện thêm các thư viện cho python: vidstream, pynput ,keyboard bằng câu lệnh cmd:
+  + Cài đặt thư viện thêm các thư viện cho python: vidstream, pynput, keyboard **bằng cmd**:
         
         pip install vidstream pynput keyboard
     
@@ -30,17 +30,17 @@ ________________________________________________________________________________
   
         https://git-scm.com/downloads/win
     
-  + Git clone đồ án về bằng câu lệnh:
+  + Git clone đồ án về bằng câu lệnh **git bash**:
         
         git clone https://github.com/Royalthneu/DoAn_MMT_NTTrung_2024.git   
 
 - Trên máy ảo, chạy file server.py : 
-  + Truy cập folder server trên máy ảo vừa clone về và chạy file server.py bằng cmd:
+  + Truy cập folder server trên máy ảo vừa clone về và chạy file server.py **bằng cmd**:
          
          python server.py
   
 - Chạy file client.py trên máy thật:
-  + Trên máy ảo, Truy cập folder client trên máy thật vừa clone về và chạy file client.py bằng cmd:
+  + Trên máy ảo, Truy cập folder client trên máy thật vừa clone về và chạy file client.py **bằng cmd**:
          
          python client.py
 
