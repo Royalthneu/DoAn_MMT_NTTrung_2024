@@ -17,20 +17,24 @@ ________________________________________________________________________________
     - Cài đặt python 3.12.7 trở xuống:
       + Đường link file cài đặt python 3.12.7: https://www.python.org/downloads/windows/
       + Cài đặt thư viện thêm các thư viện cho python: vidstream, pynput ,keyboard bằng câu lệnh cmd:
-            pip install vidstream pynput keyboard
+            
+            `pip install vidstream pynput keyboard`
     
     - Cài đặt git bash:
       + Đường link file cài đặt git bash: https://git-scm.com/downloads/win
       + Git clone đồ án về bằng câu lệnh:
-            git clone https://github.com/Royalthneu/DoAn_MMT_NTTrung_2024.git   
+            
+            `git clone https://github.com/Royalthneu/DoAn_MMT_NTTrung_2024.git`   
     
     - Chạy file server.py trên máy ảo: 
       + Truy cập folder server trên máy ảo vừa clone về và chạy file server.py bằng cmd:
-             python server.py
+             
+             `python server.py`
       
     - Chạy file client.py trên máy thật
       + Truy cập folder client trên máy thật và chạy file client.py bằng cmd:
-             python client.py
+             
+             `python client.py`
 
 * Mô tả chương trình và Hướng dẫn sử dụng: ... đường link
 
