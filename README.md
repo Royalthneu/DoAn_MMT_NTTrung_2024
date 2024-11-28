@@ -17,7 +17,7 @@ ________________________________________________________________________________
 *Hướng dẫn cài đặt ứng dụng trên máy thật và máy ảo:
     
 - Cài đặt python 3.12.7 trở xuống:
-  + Đường link file cài đặt python
+  + Đường link file cài đặt python:
   
         https://www.python.org/downloads/windows/
     
@@ -34,13 +34,13 @@ ________________________________________________________________________________
         
         git clone https://github.com/Royalthneu/DoAn_MMT_NTTrung_2024.git   
 
-- Chạy file server.py trên máy ảo: 
+- Trên máy ảo, chạy file server.py : 
   + Truy cập folder server trên máy ảo vừa clone về và chạy file server.py bằng cmd:
          
          python server.py
   
-- Chạy file client.py trên máy thật
-  + Truy cập folder client trên máy thật và chạy file client.py bằng cmd:
+- Chạy file client.py trên máy thật:
+  + Trên máy ảo, Truy cập folder client trên máy thật vừa clone về và chạy file client.py bằng cmd:
          
          python client.py
 
