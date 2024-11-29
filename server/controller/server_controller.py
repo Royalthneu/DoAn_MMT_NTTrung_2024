@@ -1,6 +1,7 @@
 import threading
 from tkinter import messagebox
 
+
 class SV_Controller:
     def __init__(self, model, view):
         self.model = model
@@ -8,18 +9,20 @@ class SV_Controller:
         self.client_socket = None
         self.client_ip = None
         self.client_port = None
-        
+
         self.view.btn_open.config(command=self.start_server)
         self.view.btn_close.config(command=self.stop_server)
 
     def start_server(self):
         if self.model.start_server():
-            self.view.show_message("THÔNG BÁO", f"Server is listening on: {self.model.server_ip}:{self.model.server_port}")
+            self.view.show_message("THÔNG BÁO", f"Server is listening on: {
+                                   self.model.server_ip}:{self.model.server_port}")
             self.view.set_lbl_status("Server is opening")
             self.view.set_lbl_server_ip(self.model.server_ip)
             self.view.disable_open_button()
             self.view.enable_close_button()
-            threading.Thread(target=self.listen_for_clients,daemon=True).start()
+            threading.Thread(target=self.listen_for_clients,
+                             daemon=True).start()
         else:
             self.view.show_message("Lỗi", "Không thể khởi động server.")
             self.view.enable_open_button()
@@ -31,9 +34,11 @@ class SV_Controller:
             while True:
                 self.client_socket, self.addr = self.model.accept_client()
                 if self.client_socket:
-                    self.view.show_message("Thông báo", f"Client connected from {self.addr}")
+                    self.view.show_message(
+                        "Thông báo", f"Client connected from {self.addr}")
                     self.client_ip, self.client_port = self.addr
-                    self.model.update_config_server("sv_config.json", self.model.server_ip, self.model.server_port, self.client_ip, 6789)
+                    self.model.update_config_server(
+                        "sv_config.json", self.model.server_ip, self.model.server_port, self.client_ip, 6789)
                     client_thread = threading.Thread(
                         target=self.handle_client, args=(self.client_socket, self.addr), daemon=True)
                     client_thread.start()
@@ -48,34 +53,34 @@ class SV_Controller:
             self.view.enable_open_button()
             self.view.disable_close_button()
 
-
     def handle_client(self, client_socket, addr):
         """Xử lý lệnh từ Client"""
         exception_occurred = False  # Biến cờ để kiểm soát việc hiển thị thông báo
-        
+
         try:
             while True:
                 command = self.model.receive_response(client_socket)
 
-                #1. List app running
+                # 1. List app running
                 if command == "LIST_APPS_RUNNING":
                     result = self.model.list_apps_running()  # Chuyển lệnh trả về từ model
-                    self.model.send_command_utf8(client_socket, result)  # Gửi kết quả lại cho client
-                
+                    # Gửi kết quả lại cho client
+                    self.model.send_command_utf8(client_socket, result)
+
                 elif command.startswith("START_APP_BY_NAME"):
                     name = command.split(" ", 1)[1]
                     result = self.model.start_app_by_name(name)
-                    self.model.send_command(client_socket, result)                
-                
+                    self.model.send_command(client_socket, result)
+
                 elif command.startswith("STOP_APP_BY_PID"):
                     pid = int(command.split(" ", 1)[1])
                     result = self.model.stop_app_by_pid(pid)
                     self.model.send_command(client_socket, result)
-                
+
                 elif command == "CLEAR_LIST_APPS":
                     self.model.send_command(client_socket, command)
 
-                #2. List services running
+                # 2. List services running
                 elif command == "LIST_SERVICES_RUNNING":
                     result = self.model.list_running_services()
                     self.model.send_command_utf8(client_socket, result)
@@ -89,16 +94,16 @@ class SV_Controller:
                     service_pid = int(command.split(" ", 1)[1])
                     result = self.model.stop_service_by_pid(service_pid)
                     self.model.send_command(client_socket, result)
-                
+
                 elif command.startswith("STOP_SERVICE_BY_NAME"):
                     service_name = command.split(" ", 1)[1]
                     result = self.model.stop_service_by_name(service_name)
                     self.model.send_command(client_socket, result)
-                    
+
                 elif command == "CLEAR_LIST_SERVICES":
                     self.model.send_command(client_socket, command)
-                
-                #3. Shutdown_reset
+
+                # 3. Shutdown_reset
                 elif command == "SHUTDOWN_SERVER":
                     result = self.model.shutdown_server()
                     self.model.send_command(client_socket, result)
@@ -107,40 +112,46 @@ class SV_Controller:
                     result = self.model.reset_server()
                     self.model.send_command(client_socket, result)
 
-                #4. Screen_share
-                elif command.startswith("START_SCREEN_SHARING"):               
-                    client_ip, client_port = self.model.read_config_server("sv_config.json")
-                    client_view_stream, stream_thread = self.model.start_screen_sharing(client_ip, client_port)
+                # 4. Screen_share
+                elif command.startswith("START_SCREEN_SHARING"):
+                    client_ip, client_port = self.model.read_config_server(
+                        "sv_config.json")
+                    client_view_stream, stream_thread = self.model.start_screen_sharing(
+                        client_ip, client_port)
                     stream_thread.start()
-                    self.model.send_command(client_socket, "Screen sharing started.")
+                    self.model.send_command(
+                        client_socket, "Screen sharing started.")
 
                     # Chờ dừng chia sẻ màn hình
                     while True:
-                        stop_command = self.model.receive_response(client_socket)
+                        stop_command = self.model.receive_response(
+                            client_socket)
                         if stop_command == "STOP_SCREEN_SHARING":
-                            result = self.model.stop_screen_sharing(client_view_stream)
+                            result = self.model.stop_screen_sharing(
+                                client_view_stream)
                             self.model.send_command(client_socket, result)
                             break
 
-                #5. Key Logger
+                # 5. Key Logger
                 elif command == "START_KEYLOGGER":
                     if not self.model.is_logging:
-                        thread = threading.Thread(target=self.model.start_keylogging())
+                        thread = threading.Thread(
+                            target=self.model.start_keylogging())
                         thread.daemon = True
                         thread.start()
                     self.model.start_keylogging()
-                    
+
                 elif command == "STOP_KEYLOGGER":
                     self.model.stop_keylogging()
-                    
+
                 elif command == "FETCH_KEYLOGGER":
-                    keys = self.model.fetch_keylogger()                    
+                    keys = self.model.fetch_keylogger()
                     self.model.send_command(client_socket, keys)
-                
+
                 elif command == "CLEAR_BUFFER_KEYLOGGER":
-                    keys = self.model.clear_keys()                 
-                
-                #6. Del va Copy
+                    keys = self.model.clear_keys()
+
+                # 6. Del va Copy
                 if command.startswith("COPY_FILE"):
                     file_path = command.split(" ", 1)[1]
                     self.model.copy_file(client_socket, file_path)
@@ -152,7 +163,7 @@ class SV_Controller:
 
                 elif command.startswith("DELETE_FILE"):
                     file_path = command.split(" ", 1)[1]
-                    response = self.model.delete_file(file_path)                    
+                    response = self.model.delete_file(file_path)
                     self.model.send_command(client_socket, response)
 
                 else:
@@ -160,12 +171,14 @@ class SV_Controller:
 
         except Exception as e:
             exception_occurred = True  # Đặt cờ nếu xảy ra ngoại lệ
-            self.view.show_message(title = "Ngoại lệ", message = f"Error handling client {addr}: {str(e)}")
+            self.view.show_message(
+                title="Ngoại lệ", message=f"Error handling client {addr}: {str(e)}")
         finally:
             client_socket.close()
             # Chỉ hiển thị thông báo nếu không có ngoại lệ
             if not exception_occurred:
-                self.view.show_message(title = "Thông báo", message = f"Client disconnected: {addr}")
+                self.view.show_message(
+                    title="Thông báo", message=f"Client disconnected: {addr}")
 
     def stop_server(self):
         self.model.close_server()
